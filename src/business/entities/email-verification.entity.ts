@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class EmailVerification {
-  @PrimaryColumn("string")
+  @PrimaryColumn()
   email: string;
 
   @Column()
