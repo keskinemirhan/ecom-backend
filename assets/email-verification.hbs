@@ -1,0 +1,55 @@
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Posta Doğrulaması</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+      * {
+        font-family: "Open Sans", sans-serif;
+      }
+      .container {
+        justify-content: center;
+        max-width: 700px;
+        padding: 10px;
+        margin: 10px;
+      }
+      .card {
+        background-color: rgb(213, 235, 255);
+        padding: 30px;
+        border-radius: 10px;
+      }
+      .greeting-text {
+        font-size: xx-large;
+        margin-bottom: 10px;
+      }
+      .email-text {
+        font-weight: 600;
+        font-size: x-large;
+        margin-bottom: 10px;
+      }
+      .code {
+        letter-spacing: 3px;
+        font-size: xx-large;
+        padding: 5px;
+        background-color: rgb(255, 255, 255);
+        text-align: center;
+        font-weight: 700;
+      }
+      .sub-text {
+        font-size: large;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="greeting-text">Merhaba {{name}}!</div>
+        <div class="sub-text">The Door Park Kapı Markete Hoşgeldin</div>
+        <div class="email-text">E-Posta Doğrulama Kodun</div>
+        <div class="code">{{code}}</div>
+      </div>
+    </div>
+  </body>
+</html>
