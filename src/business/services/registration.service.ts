@@ -47,6 +47,10 @@ export class RegistrationService {
       return undefined;
     }
 
+    // Hash password
+    userModel.password = await this.utilityService.hashString(
+      userModel.password
+    );
     // Set account status unverified
     userModel.verified = false;
 

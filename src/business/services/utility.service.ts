@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-
+import * as bcrypt from "bcrypt";
 @Injectable()
 export class UtilityService {
   /**
@@ -24,5 +24,31 @@ export class UtilityService {
     let differenceValue = (dateNear.getTime() - dateFar.getTime()) / 1000;
     differenceValue /= 60;
     return Math.abs(Math.round(differenceValue));
+  }
+
+  /**
+   * Hashes given string with randomly generated salt
+   * and returns promise of string that contains hash and salt
+   * @param string - string to be hashed
+   * @returns promise of hashed string with its salt
+   */
+  async hashString(string: string): Promise<string> {
+    const salt = await bcrypt.genSalt();
+    const hashedString = await bcrypt.hash(string, salt);
+    return hashedString;
+  }
+  /**
+   * Compares given string with the hashed one
+   * if hashed version of normal string does not match
+   * returns promise of false if matches returns
+   * promise of true
+   *
+   * @param normal - non-hashed string to compare with hashed one
+   * @param hashed - hashed string to compare
+   * @returns true if match else false
+   */
+  async compareHash(normal: string, hashed: string): Promise<boolean> {
+    const result = await bcrypt.compare(normal, hashed);
+    return result;
   }
 }
