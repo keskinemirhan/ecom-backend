@@ -4,6 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { BusinessModule } from "./business/business.module";
 import { JwtModule } from "@nestjs/jwt";
 import { RegisterController } from "./controllers/public/register/register.controller";
+import { LoginController } from "./controllers/public/login/login.controller";
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { RegisterController } from "./controllers/public/register/register.contr
       },
     }),
   ],
-  controllers: [RegisterController],
+  controllers: [RegisterController, LoginController],
   providers: [],
 })
 export class AppModule {}

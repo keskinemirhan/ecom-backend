@@ -9,6 +9,8 @@ import { RegistrationService } from "./services/registration.service";
 import { MailService } from "./services/mail.service";
 import { EmailVerification } from "./entities/email-verification.entity";
 import { UtilityService } from "./services/utility.service";
+import { LoginService } from "./services/login.service";
+import { AccountService } from "./services/account.service";
 
 @Module({
   imports: [
@@ -21,7 +23,19 @@ import { UtilityService } from "./services/utility.service";
       EmailVerification,
     ]),
   ],
-  providers: [RegistrationService, MailService, UtilityService],
-  exports: [RegistrationService, MailService, UtilityService],
+  providers: [
+    RegistrationService,
+    MailService,
+    UtilityService,
+    LoginService,
+    AccountService,
+  ],
+  exports: [
+    RegistrationService,
+    MailService,
+    UtilityService,
+    LoginService,
+    AccountService,
+  ],
 })
 export class BusinessModule {}
