@@ -5,7 +5,7 @@ import { LoginService } from "src/business/services/login.service";
 import { customError, errorApiInfo } from "src/controllers/dto/errors";
 import { ResponseLoginDto } from "./dto/response-login.dto";
 import { AccountService } from "src/business/services/account.service";
-@ApiTags("Register")
+@ApiTags("Login")
 @Controller("login")
 export class LoginController {
   constructor(
