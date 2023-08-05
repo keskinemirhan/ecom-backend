@@ -5,4 +5,9 @@ export class ResponseLoginDto {
     description: "Jwt linked with account",
   })
   access_token: string;
+
+  @ApiProperty({
+    description: "Indicates whether the account is verified or not",
+  })
+  verified: boolean;
 }
