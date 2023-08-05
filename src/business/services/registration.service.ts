@@ -38,7 +38,7 @@ export class RegistrationService {
    */
   async registerUser(userModel: DeepPartial<User>): Promise<User | undefined> {
     // Control if email is used already
-    const controlEmail = this.userRepo.findOne({
+    const controlEmail = await this.userRepo.findOne({
       where: {
         email: userModel.email,
       },
@@ -68,7 +68,7 @@ export class RegistrationService {
    *
    * @param email - Email address to associate with given verification code
    * @param code - Verification code to associate with given email address
-   * @param quota - Email verification creation quota for given email address
+   * @param quota - Email verification creation quota for given email address default value is 10
    * @returns promise of -1 if account already verified
    * @returns promise of 1 if quota exceeded
    * @returns promise of EmailVerification if creation successful
@@ -148,16 +148,15 @@ export class RegistrationService {
       currentDate,
       verificationDate
     );
-    if (differenceMin >= 2) return 1;
+    if (differenceMin > 2) return 1;
 
+    if (verification.controlled) {
+      return 3;
+    }
     if (verification.code !== code) {
       verification.controlled = true;
       await this.verificationRepo.save(verification);
       return 2;
-    }
-
-    if (verification.controlled) {
-      return 3;
     }
 
     const user = await this.userRepo.findOne({ where: { email } });

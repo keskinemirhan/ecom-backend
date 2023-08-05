@@ -4,7 +4,7 @@ import * as bcrypt from "bcrypt";
 export class UtilityService {
   /**
    * Returns string of randomly generated numbers of length digitCount
-   * @param digitCount - Count of numbers to be generated randomly
+   * @param digitCount - Count of numbers to be generated randomly default value is 6
    * @returns string of randomly generated numbers of length digitCount
    */
   createVerificationCode(digitCount: number = 6) {

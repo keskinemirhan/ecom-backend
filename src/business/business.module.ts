@@ -22,5 +22,6 @@ import { UtilityService } from "./services/utility.service";
     ]),
   ],
   providers: [RegistrationService, MailService, UtilityService],
+  exports: [RegistrationService, MailService, UtilityService],
 })
 export class BusinessModule {}

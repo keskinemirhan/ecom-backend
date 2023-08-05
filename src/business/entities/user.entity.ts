@@ -8,9 +8,11 @@ import {
 } from "typeorm";
 import { Address } from "./address.entity";
 import { CommercialItem } from "./commercial-item.entity";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class User {
+  @Exclude()
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -26,6 +28,7 @@ export class User {
   @Column()
   phoneNumber: string;
 
+  @Exclude()
   @Column()
   password: string;
 

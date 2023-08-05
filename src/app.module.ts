@@ -2,6 +2,8 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { BusinessModule } from "./business/business.module";
+import { JwtModule } from "@nestjs/jwt";
+import { RegisterController } from "./controllers/public/register/register.controller";
 
 @Module({
   imports: [
@@ -24,8 +26,15 @@ import { BusinessModule } from "./business/business.module";
       }),
       inject: [ConfigService],
     }),
+    JwtModule.register({
+      global: true,
+      secret: process.env["JWT_SECRET"] || "secret",
+      signOptions: {
+        expiresIn: `${Number(process.env["JWT_EXPIRE_SECONDS"]) || 600}s`,
+      },
+    }),
   ],
-  controllers: [],
+  controllers: [RegisterController],
   providers: [],
 })
 export class AppModule {}
