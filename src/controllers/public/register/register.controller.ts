@@ -27,7 +27,8 @@ export class RegisterController {
   ) {}
 
   @ApiOkResponse({
-    description: "Returns email and Jwt",
+    description:
+      "Returns email and Jwt , sends verification email with code to registered email address",
     type: ResponseRegisterDto,
   })
   @ApiBadRequestResponse(errorApiInfo(["R001"]))
@@ -93,7 +94,8 @@ export class RegisterController {
   }
 
   @ApiOkResponse({
-    description: "Returns email ",
+    description:
+      "Returns email and sends verification email to access token's email address ",
     type: ResponseEmailVerfication,
   })
   @ApiBadRequestResponse(errorApiInfo(["R006", "R007"]))
