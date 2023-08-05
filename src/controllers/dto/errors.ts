@@ -9,6 +9,7 @@ export const ErrorCodeDescriptions = {
   R005: "Failed verification session please create another session ",
   R006: "Account already verified",
   R007: "Verification quota exceeded please try again later",
+  R008: "Jwt is not valid",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 

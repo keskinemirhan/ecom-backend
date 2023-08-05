@@ -98,15 +98,20 @@ export class RegisterController {
       "Returns email and sends verification email to access token's email address ",
     type: ResponseEmailVerfication,
   })
-  @ApiBadRequestResponse(errorApiInfo(["R006", "R007"]))
+  @ApiBadRequestResponse(errorApiInfo(["R006", "R007", "R008"]))
   @Get("email-verification")
   async requestEmailVerification(
     @Body() requestEmailVerification: RequestEmailVerificationDto
   ): Promise<ResponseEmailVerfication> {
     const { access_token } = requestEmailVerification;
-    const payload = await this.jwtService.verifyAsync(access_token, {
-      secret: process.env["JWT_SECRET"] || "secret",
-    });
+    let payload;
+    try {
+      payload = await this.jwtService.verifyAsync(access_token, {
+        secret: process.env["JWT_SECRET"] || "secret",
+      });
+    } catch {
+      throw new BadRequestException(customError("R008"));
+    }
     const email = payload["email"] as string;
     const name = payload["name"] as string;
     const code = this.utilityService.createVerificationCode();
