@@ -11,6 +11,7 @@ export const ErrorCodeDescriptions = {
   R007: "Verification quota exceeded please try again later",
   R008: "Jwt is not valid",
   L001: "Credentials are wrong",
+  A001: "Have to log in to use this endpoint ",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 

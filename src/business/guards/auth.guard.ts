@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
+import { customError } from "src/controllers/dto/errors";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -23,7 +24,7 @@ export class AuthGuard implements CanActivate {
       });
       request["user"] = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(customError("A001"));
     }
     return true;
   }
