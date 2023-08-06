@@ -12,7 +12,6 @@ import { Exclude } from "class-transformer";
 
 @Entity()
 export class User {
-  @Exclude()
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -28,7 +27,6 @@ export class User {
   @Column()
   phoneNumber: string;
 
-  @Exclude()
   @Column()
   password: string;
 

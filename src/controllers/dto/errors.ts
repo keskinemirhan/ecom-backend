@@ -13,6 +13,8 @@ export const ErrorCodeDescriptions = {
   L001: "Credentials are wrong",
   A001: "Have to log in to use this endpoint ",
   A002: "Invalid token",
+  AC001: "User does not exists",
+  AC002: "Password is wrong",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 

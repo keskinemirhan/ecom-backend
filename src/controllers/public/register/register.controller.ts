@@ -13,7 +13,7 @@ import { JwtService } from "@nestjs/jwt";
 import { RequestVerifyEmailDto } from "./dto/request-verify-email.dto";
 import { ResponseVerifyEmailDto } from "./dto/response-verify-email.dto";
 import { RequestEmailVerificationDto } from "./dto/request-email-verification.dto";
-import { ResponseEmailVerfication } from "./dto/response-email-verificaiton.dto";
+import { ResponseEmailVerficationDto } from "./dto/response-email-verificaiton.dto";
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseErrorDto } from "src/controllers/dto/response-error.dto";
 import { customError, errorApiInfo } from "src/controllers/dto/errors";
@@ -96,13 +96,13 @@ export class RegisterController {
   @ApiOkResponse({
     description:
       "Returns email and sends verification email to access token's email address ",
-    type: ResponseEmailVerfication,
+    type: ResponseEmailVerficationDto,
   })
   @ApiBadRequestResponse(errorApiInfo(["R006", "R007", "R008"]))
   @Get("email-verification")
   async requestEmailVerification(
     @Body() requestEmailVerification: RequestEmailVerificationDto
-  ): Promise<ResponseEmailVerfication> {
+  ): Promise<ResponseEmailVerficationDto> {
     const { access_token } = requestEmailVerification;
     let payload;
     try {
