@@ -52,7 +52,7 @@ export class AccountController {
     type: RequestUpdateAccountDto,
     description: "Updates user info",
   })
-  @ApiUnauthorizedResponse(errorApiInfo(["A001", "A002"]))
+  @ApiUnauthorizedResponse(errorApiInfo(["AC001", "AC002"]))
   @Post()
   async updateAccount(
     requestUpdateAccount: RequestUpdateAccountDto,
