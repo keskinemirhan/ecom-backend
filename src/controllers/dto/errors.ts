@@ -12,6 +12,7 @@ export const ErrorCodeDescriptions = {
   R008: "Jwt is not valid",
   L001: "Credentials are wrong",
   A001: "Have to log in to use this endpoint ",
+  A002: "Invalid token",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 
