@@ -11,6 +11,7 @@ import { EmailVerification } from "./entities/email-verification.entity";
 import { UtilityService } from "./services/utility.service";
 import { LoginService } from "./services/login.service";
 import { AccountService } from "./services/account.service";
+import { AuthGuard } from "./guards/auth.guard";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AccountService } from "./services/account.service";
     UtilityService,
     LoginService,
     AccountService,
+    AuthGuard,
   ],
   exports: [
     RegistrationService,
@@ -36,6 +38,7 @@ import { AccountService } from "./services/account.service";
     UtilityService,
     LoginService,
     AccountService,
+    AuthGuard,
   ],
 })
 export class BusinessModule {}
