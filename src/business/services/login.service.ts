@@ -4,14 +4,49 @@ import { User } from "../entities/user.entity";
 import { Repository } from "typeorm";
 import { JwtService } from "@nestjs/jwt";
 import { UtilityService } from "./utility.service";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class LoginService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private jwtService: JwtService,
-    private utilityService: UtilityService
-  ) {}
+    private utilityService: UtilityService,
+    private configService: ConfigService
+  ) {
+    // Default admin register
+    const adminEmail = this.configService.get<string>(
+      "ADMIN_EMAIL",
+      "mail@mail.com"
+    );
+    const adminName = this.configService.get<string>("ADMIN_NAME", "Admin");
+    const adminSurname = this.configService.get<string>(
+      "ADMIN_SURNAME",
+      "Adminson"
+    );
+    const adminPassword = this.configService.get<string>(
+      "ADMIN_PASSWORD",
+      "password"
+    );
+
+    const adminControl = this.userRepo.findOne({
+      where: { isAdmin: true },
+    });
+
+    adminControl.then(async (admin) => {
+      if (admin) await this.userRepo.remove(admin);
+      const newAdmin = this.userRepo.create();
+      newAdmin.name = adminName;
+      newAdmin.surname = adminSurname;
+      newAdmin.email = adminEmail;
+      newAdmin.password = await this.utilityService.hashString(adminPassword);
+      newAdmin.phoneNumber = "";
+      newAdmin.verified = true;
+      newAdmin.isAdmin = true;
+
+      await this.userRepo.save(newAdmin);
+    });
+  }
 
   /**
    * Returns Jwt of logged in user if credentials match

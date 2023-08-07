@@ -11,6 +11,7 @@ export const ErrorCodeDescriptions = {
   R007: "Verification quota exceeded please try again later",
   R008: "Jwt is not valid",
   L001: "Credentials are wrong",
+  L002: "User is not admin",
   A001: "Have to log in to use this endpoint ",
   A002: "Invalid token",
   AC001: "User does not exists",
