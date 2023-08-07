@@ -55,7 +55,7 @@ export class AccountController {
   @ApiUnauthorizedResponse(errorApiInfo(["AC001", "AC002"]))
   @Post()
   async updateAccount(
-    requestUpdateAccount: RequestUpdateAccountDto,
+    @Body() requestUpdateAccount: RequestUpdateAccountDto,
     @JwtPayload() payload: any
   ) {
     const { authPassword, ...updateModel } = requestUpdateAccount;
