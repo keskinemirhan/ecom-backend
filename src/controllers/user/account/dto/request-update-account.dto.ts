@@ -19,13 +19,13 @@ export class RequestUpdateAccountDto {
   @IsOptional()
   surname?: string;
 
-  @ApiProperty({
-    required: false,
-    description: "New email of the user",
-  })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
+  // @ApiProperty({
+  //   required: false,
+  //   description: "New email of the user",
+  // })
+  // @IsOptional()
+  // @IsEmail()
+  // email?: string;
 
   @ApiProperty({
     required: false,
