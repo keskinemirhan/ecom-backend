@@ -13,6 +13,8 @@ import { AuthGuard } from "src/business/guards/auth.guard";
 import { BasketService } from "src/business/services/basket.service";
 import { customError } from "src/controllers/dto/errors";
 import { RequestBasketItemDto } from "./dto/request-basket-item.dto";
+
+// TODO : swagger
 @UseGuards(AuthGuard)
 @Controller("basket")
 export class BasketController {
