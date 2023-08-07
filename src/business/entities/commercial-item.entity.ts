@@ -25,6 +25,8 @@ export class CommercialItem {
   @Column()
   imageUrl: string;
 
-  @ManyToOne(() => Category, (category) => category.commercialItems)
+  @ManyToOne(() => Category, (category) => category.commercialItems, {
+    eager: true,
+  })
   category: Category;
 }

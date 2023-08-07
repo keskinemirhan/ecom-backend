@@ -6,6 +6,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { RegisterController } from "./controllers/public/register/register.controller";
 import { LoginController } from "./controllers/public/login/login.controller";
 import { AccountController } from "./controllers/user/account/account.controller";
+import { BasketController } from "./controllers/user/basket/basket.controller";
 
 @Module({
   imports: [
@@ -36,7 +37,12 @@ import { AccountController } from "./controllers/user/account/account.controller
       },
     }),
   ],
-  controllers: [RegisterController, LoginController, AccountController],
+  controllers: [
+    RegisterController,
+    LoginController,
+    AccountController,
+    BasketController,
+  ],
   providers: [],
 })
 export class AppModule {}

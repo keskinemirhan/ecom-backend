@@ -15,6 +15,8 @@ export const ErrorCodeDescriptions = {
   A002: "Invalid token",
   AC001: "User does not exists",
   AC002: "Password is wrong",
+  B001: "Item not found",
+  B002: "Basket limit exceeded",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 
