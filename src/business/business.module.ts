@@ -13,6 +13,7 @@ import { LoginService } from "./services/login.service";
 import { AccountService } from "./services/account.service";
 import { AuthGuard } from "./guards/auth.guard";
 import { BasketService } from "./services/basket.service";
+import { AdminAuthGuard } from "./guards/admin-auth.guard";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { BasketService } from "./services/basket.service";
     AccountService,
     AuthGuard,
     BasketService,
+    AdminAuthGuard,
   ],
   exports: [
     RegistrationService,
@@ -42,6 +44,7 @@ import { BasketService } from "./services/basket.service";
     AccountService,
     AuthGuard,
     BasketService,
+    AdminAuthGuard,
   ],
 })
 export class BusinessModule {}
