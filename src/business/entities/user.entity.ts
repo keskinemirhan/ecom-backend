@@ -33,6 +33,9 @@ export class User {
   @Column()
   verified: boolean;
 
+  @Column({ default: false })
+  isAdmin: boolean;
+
   @ManyToMany(() => CommercialItem)
   @JoinTable()
   basketItems: CommercialItem[];

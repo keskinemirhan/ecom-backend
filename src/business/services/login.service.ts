@@ -19,9 +19,16 @@ export class LoginService {
    * if password wrong returns 1
    * @param email - email of user
    * @param password - password of user
-   * @returns access token if something wrong returns numbers according to error type
+   * @returns -1 if user does not exists
+   * @returns 1 if user does not exists
+   * @returns 2 if specified admin and user is not admin
+   *
    */
-  async login(email: string, password: string): Promise<string | -1 | 1> {
+  async login(
+    email: string,
+    password: string,
+    admin: boolean = false
+  ): Promise<string | -1 | 1 | 2> {
     const user = await this.userRepo.findOne({
       where: {
         email,
@@ -29,6 +36,9 @@ export class LoginService {
     });
     if (!user) return -1;
 
+    if (admin) {
+      if (!user.isAdmin) return 2;
+    }
     const comparisonResult = await this.utilityService.compareHash(
       password,
       user.password

@@ -29,7 +29,7 @@ export class LoginController {
     const password = requestLogin.password;
     const result = await this.loginService.login(email, password);
 
-    if (result === -1 || result === 1)
+    if (result === -1 || result === 1 || result === 2)
       throw new BadRequestException(customError("L001"));
 
     return {
