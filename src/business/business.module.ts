@@ -14,6 +14,8 @@ import { AccountService } from "./services/account.service";
 import { AuthGuard } from "./guards/auth.guard";
 import { BasketService } from "./services/basket.service";
 import { AdminAuthGuard } from "./guards/admin-auth.guard";
+import { CategoryService } from "./services/category.service";
+import { ItemService } from "./services/item.service";
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { AdminAuthGuard } from "./guards/admin-auth.guard";
     AuthGuard,
     BasketService,
     AdminAuthGuard,
+    CategoryService,
+    ItemService,
   ],
   exports: [
     RegistrationService,
@@ -45,6 +49,8 @@ import { AdminAuthGuard } from "./guards/admin-auth.guard";
     AuthGuard,
     BasketService,
     AdminAuthGuard,
+    CategoryService,
+    ItemService,
   ],
 })
 export class BusinessModule {}
