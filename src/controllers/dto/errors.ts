@@ -18,6 +18,8 @@ export const ErrorCodeDescriptions = {
   AC002: "Password is wrong",
   B001: "Item not found",
   B002: "Basket limit exceeded",
+  C001: "Category not found",
+  I001: "Item not found",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 

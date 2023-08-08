@@ -7,6 +7,8 @@ import { RegisterController } from "./controllers/public/register/register.contr
 import { LoginController } from "./controllers/public/login/login.controller";
 import { AccountController } from "./controllers/user/account/account.controller";
 import { BasketController } from "./controllers/user/basket/basket.controller";
+import { ItemController } from "./controllers/public/item/item.controller";
+import { CategoryController } from "./controllers/public/category/category.controller";
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { BasketController } from "./controllers/user/basket/basket.controller";
     LoginController,
     AccountController,
     BasketController,
+    ItemController,
+    CategoryController,
   ],
   providers: [],
 })

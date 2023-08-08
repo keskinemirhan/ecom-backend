@@ -17,13 +17,16 @@ export class CommercialItem {
   name: string;
 
   @Column()
-  price: string;
+  price: number;
 
   @Column()
   description: string;
 
   @Column()
   imageUrl: string;
+
+  @Column()
+  quantity: number;
 
   @ManyToOne(() => Category, (category) => category.commercialItems, {
     eager: true,

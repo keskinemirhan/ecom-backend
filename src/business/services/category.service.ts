@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Category } from "../entities/category.entity";
-import { DeepPartial, Repository } from "typeorm";
+import { DeepPartial, FindOptionsRelations, Repository } from "typeorm";
 
 @Injectable()
 export class CategoryService {
@@ -24,8 +24,11 @@ export class CategoryService {
    * @returns category
    * @returns -1 if category with given id not found
    */
-  async getOneCategory(id: string) {
-    const category = await this.categoryRepo.findOne({ where: { id } });
+  async getOneCategory(id: string, relations?: FindOptionsRelations<Category>) {
+    const category = await this.categoryRepo.findOne({
+      where: { id },
+      relations,
+    });
     if (!category) return -1;
     return category;
   }
