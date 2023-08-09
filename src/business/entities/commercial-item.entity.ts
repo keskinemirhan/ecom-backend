@@ -30,6 +30,7 @@ export class CommercialItem {
 
   @ManyToOne(() => Category, (category) => category.commercialItems, {
     eager: true,
+    onDelete: "SET NULL",
   })
   category: Category;
 }

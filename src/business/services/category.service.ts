@@ -57,4 +57,19 @@ export class CategoryService {
 
     return await this.categoryRepo.save(category);
   }
+
+  /**
+   * Removes category with given id
+   * @param id id of category to be removed
+   * @returns removed cateogory
+   * @returns -1 if category with given id not found
+   */
+  async removeCategory(id: string) {
+    const category = await this.categoryRepo.findOne({ where: { id } });
+    if (!category) return -1;
+
+    const removed = await this.categoryRepo.remove(category);
+
+    return removed;
+  }
 }

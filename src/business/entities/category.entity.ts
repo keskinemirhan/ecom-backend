@@ -9,6 +9,10 @@ export class Category {
   @Column()
   name: string;
 
-  @OneToMany(() => CommercialItem, (commercialItem) => commercialItem.category)
+  @OneToMany(
+    () => CommercialItem,
+    (commercialItem) => commercialItem.category,
+    { onDelete: "SET NULL" }
+  )
   commercialItems: CommercialItem[];
 }

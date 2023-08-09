@@ -51,7 +51,7 @@ export class ItemService {
    * Removes item with given id
    * @param id id of the item
    * @returns removed item
-   * @returns -1 if deletion failed
+   * @returns -1 if item not found
    */
   async removeItem(id: string) {
     const item = await this.itemRepo.findOne({ where: { id } });

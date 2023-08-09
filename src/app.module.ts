@@ -9,6 +9,8 @@ import { AccountController } from "./controllers/user/account/account.controller
 import { BasketController } from "./controllers/user/basket/basket.controller";
 import { ItemController } from "./controllers/public/item/item.controller";
 import { CategoryController } from "./controllers/public/category/category.controller";
+import { SetItemController } from "./controllers/admin/set-item/set-item.controller";
+import { SetCategoryController } from "./controllers/admin/set-category/set-category.controller";
 
 @Module({
   imports: [
@@ -46,6 +48,8 @@ import { CategoryController } from "./controllers/public/category/category.contr
     BasketController,
     ItemController,
     CategoryController,
+    SetItemController,
+    SetCategoryController,
   ],
   providers: [],
 })

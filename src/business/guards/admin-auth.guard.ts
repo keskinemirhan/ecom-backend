@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   Injectable,
@@ -11,12 +12,13 @@ import { Request } from "express";
 import { customError } from "src/controllers/dto/errors";
 import { Repository } from "typeorm";
 import { User } from "../entities/user.entity";
+import { AccountService } from "../services/account.service";
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
-    @InjectRepository(User) private userRepo: Repository<User>
+    private accountService: AccountService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,9 +31,10 @@ export class AdminAuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env["JWT_SECRET"] || "secret",
       });
-      const user = await this.userRepo.findOne({
-        where: { id: payload["id"] },
-      });
+      const user = await this.accountService.getUserByEmail(payload.email);
+
+      if (!user) throw new BadRequestException(customError("AC001"));
+
       if (!user.isAdmin) throw new NotFoundException();
 
       request["user"] = payload;
