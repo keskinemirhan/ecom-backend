@@ -49,7 +49,7 @@ export class AccountController {
   }
 
   @ApiOkResponse({
-    type: RequestUpdateAccountDto,
+    type: ResponseUpdateAccountDto,
     description: "Updates user info",
   })
   @ApiUnauthorizedResponse(errorApiInfo(["AC001", "AC002"]))
