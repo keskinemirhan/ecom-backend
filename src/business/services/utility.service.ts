@@ -51,4 +51,26 @@ export class UtilityService {
     const result = await bcrypt.compare(normal, hashed);
     return result;
   }
+
+  /**
+   * Creates pagination response with some properties
+   * @param data data that will be sent
+   * @param page current page of paginated data
+   * @param limit item size of the pages
+   * @returns pagination response object
+   */
+  paginateResponse(data, page, limit) {
+    const [result, total] = data;
+    const lastPage = Math.ceil(total / limit);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    return {
+      data: [...result],
+      count: total,
+      currentPage: page,
+      nextPage: nextPage,
+      prevPage: prevPage,
+      lastPage: lastPage,
+    };
+  }
 }

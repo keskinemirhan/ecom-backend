@@ -1,28 +1,45 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CommercialItem } from "../entities/commercial-item.entity";
-import { DeepPartial, Repository } from "typeorm";
+import { DeepPartial, MoreThan, Repository } from "typeorm";
+import { UtilityService } from "./utility.service";
 
 @Injectable()
 export class ItemService {
   constructor(
     @InjectRepository(CommercialItem)
-    private itemRepo: Repository<CommercialItem>
+    private itemRepo: Repository<CommercialItem>,
+    private utilityService: UtilityService
   ) {}
 
   /**
-   * Returns all commercial items
+   * Returns all commercial items with pagination
    * @param inStock if it is true returns only in stock items
+   * @param page page number
+   * @param take page item count
    * @returns all items if instock false
    * @returns in stock items if instock true
    */
-  async getAllItems(inStock: boolean) {
+  async getAllItems(inStock: boolean, page: number, take: number) {
+    const skip = (page - 1) * take;
     if (inStock) {
-      const items = await this.itemRepo.find();
-      const filteredItems = items.filter((item) => item.quantity > 0);
-      return filteredItems;
+      const items = await this.itemRepo.findAndCount({
+        where: { quantity: MoreThan(0) },
+        take,
+        skip,
+      });
+      return {
+        items,
+        page,
+        take,
+      };
     } else {
-      return await this.itemRepo.find();
+      const items = await this.itemRepo.findAndCount({ take, skip });
+      return {
+        items,
+        page,
+        take,
+      };
     }
   }
 
