@@ -8,8 +8,7 @@ import { UtilityService } from "./utility.service";
 export class ItemService {
   constructor(
     @InjectRepository(CommercialItem)
-    private itemRepo: Repository<CommercialItem>,
-    private utilityService: UtilityService
+    private itemRepo: Repository<CommercialItem>
   ) {}
 
   /**
