@@ -1,0 +1,29 @@
+ADMIN_NAME=Admin
+ADMIN_SURNAME=Admin
+ADMIN_EMAIL=mail@mail.com
+ADMIN_PASSWORD=password
+
+GC_PROJECT_ID=door-store-backend
+GC_KEY_NAME=cloud-key.json
+GC_BUCKET_NAME=bucket-name
+
+APP_NAME=The Project
+APP_DESCRIPTION=The Description
+APP_VERSION=0.0.1
+APP_PORT=3000
+DB_TYPE='sqlite'
+DB_HOST=
+DB_PORT=
+DB_USERNAME=
+DB_PASSWORD=
+DB_NAME='db.sqlite'
+DB_SYCHRONIZE=true
+SMTP_HOST=smtp-service.com
+SMTP_PORT=5800
+SMTP_USERNAME=mai@mail.com
+SMTP_PASSWORD=password
+SMTP_SENDER_EMAIL=noreply@mail.com
+SMTP_SENDER_NAME=The Project
+SMTP_TLS=false
+JWT_SECRET=secret
+JWT_EXPIRE_SECONDS=600

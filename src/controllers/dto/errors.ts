@@ -20,6 +20,9 @@ export const ErrorCodeDescriptions = {
   B002: "Basket limit exceeded",
   C001: "Category not found",
   I001: "Item not found",
+  F001: "Empty file field",
+  F002: "File with given id not found",
+  Q001: "One or all of the query params are not number ",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 

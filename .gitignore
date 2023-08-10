@@ -1,3 +1,9 @@
+# env variables
+.env
+
+# gcloud key
+assets/cloud-key.json
+
 # compodoc 
 documentation
 

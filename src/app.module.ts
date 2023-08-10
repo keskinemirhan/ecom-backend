@@ -11,6 +11,7 @@ import { ItemController } from "./controllers/public/item/item.controller";
 import { CategoryController } from "./controllers/public/category/category.controller";
 import { SetItemController } from "./controllers/admin/set-item/set-item.controller";
 import { SetCategoryController } from "./controllers/admin/set-category/set-category.controller";
+import { FileControler } from "./controllers/admin/file/file.controller";
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { SetCategoryController } from "./controllers/admin/set-category/set-cate
     CategoryController,
     SetItemController,
     SetCategoryController,
+    FileControler,
   ],
   providers: [],
 })

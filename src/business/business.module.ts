@@ -16,6 +16,8 @@ import { BasketService } from "./services/basket.service";
 import { AdminAuthGuard } from "./guards/admin-auth.guard";
 import { CategoryService } from "./services/category.service";
 import { ItemService } from "./services/item.service";
+import { FileService } from "./services/file.service";
+import { FileObject } from "./entities/file-object.entity";
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { ItemService } from "./services/item.service";
       Order,
       User,
       EmailVerification,
+      FileObject,
     ]),
   ],
   providers: [
@@ -39,6 +42,7 @@ import { ItemService } from "./services/item.service";
     AdminAuthGuard,
     CategoryService,
     ItemService,
+    FileService,
   ],
   exports: [
     RegistrationService,
@@ -51,6 +55,7 @@ import { ItemService } from "./services/item.service";
     AdminAuthGuard,
     CategoryService,
     ItemService,
+    FileService,
   ],
 })
 export class BusinessModule {}
