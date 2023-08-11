@@ -18,6 +18,7 @@ import { CategoryService } from "./services/category.service";
 import { ItemService } from "./services/item.service";
 import { FileService } from "./services/file.service";
 import { FileObject } from "./entities/file-object.entity";
+import { BasketItem } from "./entities/basket-item.entity";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { FileObject } from "./entities/file-object.entity";
       User,
       EmailVerification,
       FileObject,
+      BasketItem,
     ]),
   ],
   providers: [

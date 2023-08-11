@@ -86,4 +86,23 @@ export class ItemService {
     Object.assign(item, itemModel);
     return await this.itemRepo.save(item);
   }
+
+  /**
+   * Return quantity of item with given id
+   * @param id id of item
+   * @returns stock count of item
+   * @returns -1 if item not found
+   */
+  async getItemStock(id: string) {
+    const item = await this.itemRepo.findOne({ where: { id } });
+    if (!item) return -1;
+    return item.quantity;
+  }
+
+  async setItemStock(id: string, quantity: number) {
+    const item = await this.itemRepo.findOne({ where: { id } });
+    if (!item) return -1;
+    item.quantity = quantity;
+    return quantity;
+  }
 }

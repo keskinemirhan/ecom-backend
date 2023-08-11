@@ -18,6 +18,7 @@ export const ErrorCodeDescriptions = {
   AC002: "Password is wrong",
   B001: "Item not found",
   B002: "Basket limit exceeded",
+  B003: "Cannot add more than stock quantity",
   C001: "Category not found",
   I001: "Item not found",
   F001: "Empty file field",
@@ -50,6 +51,7 @@ export function customErrorDescription(codes: ErrorCode[]): string {
   }
   return description;
 }
+
 /**
  * Creates ApiResponseOptions object according to given codes
  * to use at swagger api documentation decorators for specify

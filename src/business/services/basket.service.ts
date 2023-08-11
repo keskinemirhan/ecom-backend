@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DeepPartial, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { CommercialItem } from "../entities/commercial-item.entity";
 import { ConfigService } from "@nestjs/config";
+import { BasketItem } from "../entities/basket-item.entity";
 
 @Injectable()
 export class BasketService {
@@ -12,7 +13,8 @@ export class BasketService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(CommercialItem)
     private itemRepo: Repository<CommercialItem>,
-    private configService: ConfigService
+    private configService: ConfigService,
+    @InjectRepository(BasketItem) private basketItemRepo: Repository<BasketItem>
   ) {
     this.basketLimit = Number(
       this.configService.get<string>("BASKET_LIMIT", "500")
@@ -20,94 +22,182 @@ export class BasketService {
   }
 
   /**
-   * Returns basket array of user given id
-   * If user not found returns -1
-   * @param id - userId
-   * @returns -1 if user not found
-   * @returns basket array if successful
+   * Updates basket item with given count
+   * @param userId id of user that owns basket
+   * @param itemId item id of basket item object's item
+   * @param count count of item
+   * @returns updated basket of user if successful
+   * @returns -1 if user with given id not found
+   * @returns 1 if item with given id not found
+   * @returns 2 if basket count limit exceeded
    */
-  async getBasketByUserId(id: string) {
+  async updateBasketItem(userId: string, itemId: string, count: number) {
     const user = await this.userRepo.findOne({
-      where: { id },
+      where: { id: userId },
+      relations: { basketItems: true },
+    });
+    if (!user) return -1;
+
+    const item = await this.itemRepo.findOne({ where: { id: itemId } });
+    if (!item) return 1;
+
+    if (count > item.quantity) return 3;
+
+    const basket = user.basketItems;
+
+    const basketItem = basket.find((bItem) => bItem.item.id === itemId);
+
+    if (basketItem) {
+      const lastTotal =
+        (await this.calculateBasketCount(userId)) - basketItem.count + count;
+
+      if (lastTotal > this.basketLimit) return 2;
+
+      basketItem.count = count;
+
+      await this.basketItemRepo.save(basketItem);
+
+      const updatedUser = await this.userRepo.findOne({
+        where: { id: userId },
+        relations: { basketItems: true },
+      });
+
+      return updatedUser.basketItems;
+    }
+    if (!basketItem) {
+      const lastTotal = (await this.calculateBasketCount(userId)) + count;
+
+      if (lastTotal > this.basketLimit) return 2;
+
+      const newBasketItem = this.basketItemRepo.create();
+      newBasketItem.item = item;
+      newBasketItem.count = count;
+
+      const savedBasket = await this.basketItemRepo.save(newBasketItem);
+      user.basketItems.push(savedBasket);
+
+      await this.userRepo.save(user);
+
+      const updatedUser = await this.userRepo.findOne({
+        where: { id: userId },
+        relations: { basketItems: true },
+      });
+      return updatedUser.basketItems;
+    }
+  }
+
+  /**
+   * Removes basket item with given item id
+   * @param userId user id of user of basket
+   * @param itemId item id of basket item to removed
+   * @returns updated basket of user
+   * @returns -1 if user with given id not found
+   * @returns 1 if item with given id not found
+   */
+  async removeBasketItem(userId: string, itemId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
       relations: { basketItems: true },
     });
 
     if (!user) return -1;
-    return user.basketItems;
-  }
-  /**
-   * Adds item with given id to basket of user with given id
-   * Returns basket array if error returns number accordingly
-   * @param userId - Id of User of basket
-   * @param itemId - Id of the item
-   * @param quantity - Quantity of item
-   * @returns -1 if item not found
-   * @returns 1 if user not found
-   * @returns 2 if basket limit exceeded
-   * @returns new basket if successfully added
-   */
-  async addBasketItem(userId: string, itemId: string, quantity: number) {
-    const item = await this.itemRepo.findOne({ where: { id: itemId } });
-    if (!item) return -1;
 
-    const user = await this.userRepo.findOne({ where: { id: userId } });
-    if (!user) return 1;
+    const basketItem = user.basketItems.find(
+      (bItem) => bItem.item.id === itemId
+    );
 
-    if (user.basketItems.length + quantity > this.basketLimit) return 2;
+    if (!basketItem) return 1;
 
-    for (let index = 0; index < quantity; index++) {
-      user.basketItems.push(item);
-    }
+    await this.basketItemRepo.remove(basketItem);
 
-    await this.userRepo.save(user);
-    return await this.getBasketByUserId(user.id);
-  }
-  /**
-   * Calculates total basket price of given basket array
-   * @param basket - basket array
-   * @returns total price of the basket
-   */
-  calculateBasketPrice(basket: CommercialItem[]) {
-    let price = 0;
-    basket.forEach((item) => {
-      price += Number(item.price);
+    const updatedUser = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { basketItems: true },
     });
+
+    return updatedUser.basketItems;
+  }
+
+  /**
+   * Calculates basket price of user with given id
+   * @param userId id of user
+   * @returns total price of basket
+   */
+  async calculateBasketPrice(userId: string) {
+    let price = 0;
+    const foundUser = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { basketItems: true },
+    });
+
+    foundUser.basketItems.forEach((bItem) => {
+      price += bItem.count * bItem.item.price;
+    });
+
     return price;
   }
+
   /**
-   * Removes item with given id according to given quantity from basket
-   * Returns new basket if error occures returns numbers accordingly
-   * @param userId id of user that owns basket
-   * @param itemId item to be deleted from basket
-   * @param quantity quantity of item to be deleted
-   * @returns -1 if item with given id not found
-   * @returns 1 if user with given id not found
-   * @returns basket array if successful
+   * Calculates total item count of basket of user given id
+   * @param userId user id
+   * @returns total item count
    */
-  async removeBasketItem(userId: string, itemId: string, quantity: number) {
-    const item = await this.itemRepo.findOne({
-      where: {
-        id: itemId,
-      },
+  async calculateBasketCount(userId: string) {
+    let totalCount = 0;
+    const foundUser = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { basketItems: true },
     });
 
-    if (!item) return -1;
+    foundUser.basketItems.forEach((bItem) => {
+      totalCount += bItem.count;
+    });
 
+    return totalCount;
+  }
+
+  /**
+   * Returns basket according to given user id
+   * @param userId user of basket
+   * @returns basket of user
+   * @returns -1 if user not found
+   */
+  async getBasketByUserId(userId: string) {
     const user = await this.userRepo.findOne({
-      where: {
-        id: userId,
+      where: { id: userId },
+      relations: {
+        basketItems: true,
       },
     });
 
-    if (!user) return 1;
+    if (!user) return -1;
 
-    for (let count = 0; count < quantity; count++) {
-      const index = user.basketItems.indexOf(item);
-      if (index === -1) break;
-      user.basketItems.splice(index, 1);
+    return user.basketItems;
+  }
+
+  /**
+   * Removes all basket item of user with given id
+   * @param userId id of user of basket
+   * @returns basket of user
+   * @returns -1 if user not found
+   */
+  async removeAllBasketItem(userId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { basketItems: true },
+    });
+
+    if (!user) return -1;
+
+    for (const bItem of user.basketItems) {
+      await this.basketItemRepo.remove(bItem);
     }
-    await this.userRepo.save(user);
 
-    return await this.getBasketByUserId(userId);
+    const updatedUser = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { basketItems: true },
+    });
+
+    return updatedUser.basketItems;
   }
 }

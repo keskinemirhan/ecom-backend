@@ -9,6 +9,7 @@ import {
 import { Address } from "./address.entity";
 import { CommercialItem } from "./commercial-item.entity";
 import { Exclude } from "class-transformer";
+import { BasketItem } from "./basket-item.entity";
 
 @Entity()
 export class User {
@@ -36,9 +37,9 @@ export class User {
   @Column({ default: false })
   isAdmin: boolean;
 
-  @ManyToMany(() => CommercialItem)
+  @ManyToMany(() => BasketItem)
   @JoinTable()
-  basketItems: CommercialItem[];
+  basketItems: BasketItem[];
 
   @OneToMany(() => Address, (address) => address.user)
   addresses: Address[];
