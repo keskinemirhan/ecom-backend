@@ -44,4 +44,10 @@ export class AccountService {
     Object.assign(user, userModel);
     return await this.userRepo.save(user);
   }
+
+  async getUserById(id: string) {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) return -1;
+    return user;
+  }
 }

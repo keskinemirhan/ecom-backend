@@ -24,6 +24,8 @@ export const ErrorCodeDescriptions = {
   F001: "Empty file field",
   F002: "File with given id not found",
   Q001: "One or all of the query params are not number ",
+  P001: "Basket is empty",
+  AD001: "Address not found",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 

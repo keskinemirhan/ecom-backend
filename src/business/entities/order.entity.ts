@@ -7,7 +7,8 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Address } from "./address.entity";
-import { CommercialItem } from "./commercial-item.entity";
+import { BasketItem } from "./basket-item.entity";
+import { User } from "./user.entity";
 
 @Entity()
 export class Order {
@@ -29,13 +30,16 @@ export class Order {
   @Column()
   isCanceled: boolean;
 
-  @ManyToMany(() => CommercialItem)
+  @ManyToMany(() => BasketItem)
   @JoinTable()
-  basketItems: CommercialItem[];
+  basketItems: BasketItem[];
 
   @ManyToOne(() => Address)
   billingAddress: Address;
 
   @ManyToOne(() => Address)
   shippingAddress: Address;
+
+  @ManyToOne(() => User)
+  user: User;
 }
