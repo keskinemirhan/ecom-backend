@@ -63,6 +63,7 @@ export class PaymentService {
       currency: Iyzipay.CURRENCY.TRY,
       installment: "1",
       callbackUrl: this.callbackUrl,
+
       paymentCard: {
         cardHolderName: options.cardHolderName,
         cardNumber: options.cardNumber,
@@ -70,6 +71,7 @@ export class PaymentService {
         expireYear: options.expireYear,
         cvc: options.cvc,
       },
+
       buyer: {
         id: options.user.id,
         name: options.user.name,
@@ -83,6 +85,7 @@ export class PaymentService {
         country: options.billingAddress.country,
         zipCode: options.billingAddress.zipCode,
       },
+
       shippingAddress: {
         contactName:
           options.shippingAddress.contactName +
@@ -93,6 +96,7 @@ export class PaymentService {
         address: options.shippingAddress.address,
         zipCode: options.shippingAddress.zipCode,
       },
+
       billingAddress: {
         contactName:
           options.billingAddress.contactName +
