@@ -19,6 +19,9 @@ import { ItemService } from "./services/item.service";
 import { FileService } from "./services/file.service";
 import { FileObject } from "./entities/file-object.entity";
 import { BasketItem } from "./entities/basket-item.entity";
+import { PaymentService } from "./services/payment.service";
+import { OrderService } from "./services/order.service";
+import { AddressService } from "./services/address.service";
 
 @Module({
   imports: [
@@ -45,6 +48,9 @@ import { BasketItem } from "./entities/basket-item.entity";
     CategoryService,
     ItemService,
     FileService,
+    PaymentService,
+    OrderService,
+    AddressService,
   ],
   exports: [
     RegistrationService,
@@ -58,6 +64,9 @@ import { BasketItem } from "./entities/basket-item.entity";
     CategoryService,
     ItemService,
     FileService,
+    PaymentService,
+    OrderService,
+    AddressService,
   ],
 })
 export class BusinessModule {}
