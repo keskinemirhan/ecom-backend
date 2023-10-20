@@ -12,11 +12,12 @@ import { StartTdsDto } from "./dto/starttds.dto";
 import { BasketService } from "src/business/services/basket.service";
 import { OrderService } from "src/business/services/order.service";
 import { AuthGuard } from "src/business/guards/auth.guard";
-import { JwtPayload } from "src/business/decorators/jwt-payload.decorator";
 import { customError } from "src/controllers/dto/errors";
+import { CurrentUser } from "src/business/decorators/current-user.decorator";
 import { AddressService } from "src/business/services/address.service";
 import { AccountService } from "src/business/services/account.service";
 import { Request, Response } from "express";
+import { User } from "src/business/entities/user.entity";
 
 @UseGuards(AuthGuard)
 @Controller("payment")
@@ -32,13 +33,13 @@ export class PaymentController {
   @Post()
   async startThreeDs(
     @Body() startTds: StartTdsDto,
-    @JwtPayload() payload: any,
+    @CurrentUser() payload: User,
     @Res() res: Response,
     @Req() req: Request
   ) {
-    const user = await this.accountService.getUserById(payload["sub"]);
+    const user = await this.accountService.getUserById(payload["id"]);
     if (user === -1) throw new BadRequestException(customError("AC001"));
-    const basket = await this.basketService.getBasketByUserId(payload["sub"]);
+    const basket = await this.basketService.getBasketByUserId(payload["id"]);
     if (basket === -1) throw new BadRequestException(customError("AC001"));
     const address = await this.addressService.getAddress(
       startTds.shippingAddressId
@@ -47,7 +48,7 @@ export class PaymentController {
 
     if (basket.length === 0) throw new BadRequestException(customError("P001"));
     const totalPrice = await this.basketService.calculateBasketPrice(
-      payload["sub"]
+      payload["id"]
     );
 
     const order = await this.orderService.createOrder({

@@ -8,13 +8,14 @@ import {
   Post,
   UseGuards,
 } from "@nestjs/common";
-import { JwtPayload } from "src/business/decorators/jwt-payload.decorator";
+import { CurrentUser } from "src/business/decorators/current-user.decorator";
 import { AuthGuard } from "src/business/guards/auth.guard";
 import { BasketService } from "src/business/services/basket.service";
 import { customError, errorApiInfo } from "src/controllers/dto/errors";
 import { RequestUpdateBasketItemDto } from "./dto/request-update-basket-item";
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseBasketDto } from "./dto/response-basket.dto";
+import { User } from "src/business/entities/user.entity";
 
 // TODO : swagger
 @ApiTags("User Basket Endpoints")
@@ -32,7 +33,7 @@ export class BasketController {
   @Post()
   async updateBasket(
     @Body() requestUpdateBasketItem: RequestUpdateBasketItemDto,
-    @JwtPayload() payload: any
+    @CurrentUser() payload: User
   ) {
     const userId = payload.id;
     const itemId = requestUpdateBasketItem.itemId;
@@ -67,7 +68,7 @@ export class BasketController {
   })
   @ApiBadRequestResponse(errorApiInfo(["AC001"]))
   @Get()
-  async getBasket(@JwtPayload() payload: any) {
+  async getBasket(@CurrentUser() payload: User) {
     const userId = payload.id;
 
     const basket = await this.basketService.getBasketByUserId(userId);
@@ -94,7 +95,7 @@ export class BasketController {
   })
   @ApiBadRequestResponse(errorApiInfo(["AC001", "B001"]))
   @Delete(":id")
-  async removeItem(@Param() params: any, @JwtPayload() payload: any) {
+  async removeItem(@Param() params: any, @CurrentUser() payload: User) {
     const itemId = params.id;
     const userId = payload.id;
 
@@ -119,7 +120,7 @@ export class BasketController {
   })
   @ApiBadRequestResponse(errorApiInfo(["AC001"]))
   @Delete()
-  async removeAllBasket(@JwtPayload() payload: any) {
+  async removeAllBasket(@CurrentUser() payload: User) {
     const userId = payload.id;
     const basket = await this.basketService.removeAllBasketItem(userId);
 

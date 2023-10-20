@@ -13,7 +13,7 @@ import { User } from "src/business/entities/user.entity";
 import { AuthGuard } from "src/business/guards/auth.guard";
 import { AccountService } from "src/business/services/account.service";
 import { ResponseAccountDto } from "./dto/response-account.dto";
-import { JwtPayload } from "src/business/decorators/jwt-payload.decorator";
+import { CurrentUser } from "src/business/decorators/current-user.decorator";
 import {
   ApiBadRequestResponse,
   ApiOkResponse,
@@ -39,7 +39,7 @@ export class AccountController {
   })
   @ApiBadRequestResponse(errorApiInfo(["AC001"]))
   @Get()
-  async getAccountInfo(@JwtPayload() payload: any) {
+  async getAccountInfo(@CurrentUser() payload: User) {
     const user = await this.accountService.getUserByEmail(payload.email, {
       addresses: false,
       basketItems: false,
@@ -56,7 +56,7 @@ export class AccountController {
   @Post()
   async updateAccount(
     @Body() requestUpdateAccount: RequestUpdateAccountDto,
-    @JwtPayload() payload: any
+    @CurrentUser() payload: User
   ) {
     const { authPassword, ...updateModel } = requestUpdateAccount;
     const passControl = await this.loginService.login(
