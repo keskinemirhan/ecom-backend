@@ -45,8 +45,8 @@ export class AccountService {
     return await this.userRepo.save(user);
   }
 
-  async getUserById(id: string) {
-    const user = await this.userRepo.findOne({ where: { id } });
+  async getUserById(id: string, relations?: FindOptionsRelations<User>) {
+    const user = await this.userRepo.findOne({ where: { id }, relations });
     if (!user) return -1;
     return user;
   }
