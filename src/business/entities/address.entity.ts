@@ -24,9 +24,6 @@ export class Address {
   @Column()
   address: string;
 
-  @Column()
-  isRegistrationAddress: boolean;
-
   @ManyToOne(() => User, (user) => user.addresses)
   user: User;
 }
