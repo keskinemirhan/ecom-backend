@@ -14,10 +14,11 @@ export class BasketService {
     @InjectRepository(CommercialItem)
     private itemRepo: Repository<CommercialItem>,
     private configService: ConfigService,
-    @InjectRepository(BasketItem) private basketItemRepo: Repository<BasketItem>
+    @InjectRepository(BasketItem)
+    private basketItemRepo: Repository<BasketItem>,
   ) {
     this.basketLimit = Number(
-      this.configService.get<string>("BASKET_LIMIT", "500")
+      this.configService.get<string>("BASKET_LIMIT", "500"),
     );
   }
 
@@ -50,7 +51,6 @@ export class BasketService {
     if (basketItem) {
       const lastTotal =
         (await this.calculateBasketCount(userId)) - basketItem.count + count;
-
       if (lastTotal > this.basketLimit) return 2;
 
       basketItem.count = count;
@@ -103,7 +103,7 @@ export class BasketService {
     if (!user) return -1;
 
     const basketItem = user.basketItems.find(
-      (bItem) => bItem.item.id === itemId
+      (bItem) => bItem.item.id === itemId,
     );
 
     if (!basketItem) return 1;
@@ -166,7 +166,11 @@ export class BasketService {
     const user = await this.userRepo.findOne({
       where: { id: userId },
       relations: {
-        basketItems: true,
+        basketItems: {
+          item: {
+            category: true,
+          },
+        },
       },
     });
 
