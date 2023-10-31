@@ -122,6 +122,7 @@ export class BasketService {
    * Calculates basket price of user with given id
    * @param userId id of user
    * @returns total price of basket
+   * @returns -1 if user not found
    */
   async calculateBasketPrice(userId: string) {
     let price = 0;
@@ -129,6 +130,8 @@ export class BasketService {
       where: { id: userId },
       relations: { basketItems: true },
     });
+
+    if (foundUser === null) return -1;
 
     foundUser.basketItems.forEach((bItem) => {
       price += bItem.count * bItem.item.price;

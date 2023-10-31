@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -21,6 +22,7 @@ export class Order {
   @Column()
   totalPrice: string;
 
+  // Event Records
   @Column()
   isPaid: boolean;
 
@@ -29,6 +31,31 @@ export class Order {
 
   @Column()
   isCanceled: boolean;
+
+  @Column()
+  isRequested: boolean;
+
+  @Column()
+  isFailed: boolean;
+
+  // Event Dates
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  paidAt: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  canceledAt: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  requestedAt: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  deliveredAt: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  failedAt: Date;
 
   @ManyToMany(() => BasketItem)
   @JoinTable()

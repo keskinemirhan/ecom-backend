@@ -1,14 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Order } from "../entities/order.entity";
-import { DeepPartial, Repository } from "typeorm";
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOneOptions,
+  Repository,
+} from "typeorm";
 import { AccountService } from "./account.service";
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order) private orderRepo: Repository<Order>,
-    private accountService: AccountService
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -61,13 +66,11 @@ export class OrderService {
   /**
    * Returns order with given id
    * @param id id of order
-   * @returns -1 if order with given id not found
+   * @returns -1 if order with given options not found
    * @returns returns order with given id
    */
-  async getOrder(id: string) {
-    const order = await this.orderRepo.findOne({
-      where: { conversationId: id },
-    });
+  async getOrder(relations: FindOneOptions<Order>) {
+    const order = await this.orderRepo.findOne(relations);
     if (!order) return -1;
     return order;
   }

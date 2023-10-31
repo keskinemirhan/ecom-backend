@@ -26,6 +26,17 @@ export const ErrorCodeDescriptions = {
   Q001: "One or all of the query params are not number ",
   P001: "Basket is empty",
   AD001: "Address not found",
+  P002: "Invalid order",
+  MD0: "Invalid 3D Secure signature or verification",
+  MD2: "Card holder or Issuer not registered to 3D Secure network",
+  MD3: "Issuer is not registered to 3D secure network",
+  MD4: "Verification is not possible, card holder chosen to register later on system",
+  MD5: "Verification is not possbile",
+  MD6: "3D Secure error",
+  MD7: "System error",
+  MD8: "Unknown card",
+  MD9: "Unknown error",
+  P003: "Order does not exist",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 

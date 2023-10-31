@@ -13,6 +13,7 @@ import { SetItemController } from "./controllers/admin/set-item/set-item.control
 import { SetCategoryController } from "./controllers/admin/set-category/set-category.controller";
 import { FileControler } from "./controllers/admin/file/file.controller";
 import { AddressController } from "./controllers/user/address/address.controller";
+import { PaymentController } from "./controllers/user/payment/payment.controller";
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { AddressController } from "./controllers/user/address/address.controller
     SetCategoryController,
     FileControler,
     AddressController,
+    PaymentController,
   ],
   providers: [],
 })

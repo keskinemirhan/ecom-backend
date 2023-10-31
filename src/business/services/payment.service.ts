@@ -49,9 +49,9 @@ export class PaymentService {
     const basketItems = options.items.map((item) => {
       return {
         id: item.id,
-        name: item.item.name + `${item.count} adet`,
+        name: item.item.name + ` ${item.count} adet`,
         category1: item.item.category.name,
-        price: item.count * item.item.price,
+        price: String(item.count * item.item.price),
         itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
       };
     });
@@ -79,7 +79,7 @@ export class PaymentService {
         gsmNumber: options.user.phoneNumber,
         email: options.user.email,
         identityNumber: options.identityNumber,
-        registrationAddress: options.billingAddress,
+        registrationAddress: options.billingAddress.address,
         ip: options.ip,
         city: options.billingAddress.city,
         country: options.billingAddress.country,
@@ -110,10 +110,10 @@ export class PaymentService {
       basketItems,
     };
     this.iyzipay.threedsInitialize.create(
-      threeDsInitialize,
+      JSON.parse(JSON.stringify(threeDsInitialize)),
       function (err, result) {
         done(err, result);
-      }
+      },
     );
   }
 
@@ -121,7 +121,7 @@ export class PaymentService {
     conversationId: string,
     paymentId: string,
     conversationData: any,
-    done: (err: any, result: any) => any
+    done: (err: any, result: any) => any,
   ) {
     this.iyzipay.threedsPayment.create(
       {
@@ -131,7 +131,7 @@ export class PaymentService {
       },
       function (err, result) {
         done(err, result);
-      }
+      },
     );
   }
 }
