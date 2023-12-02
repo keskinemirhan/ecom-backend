@@ -5,11 +5,7 @@ import { Repository } from "typeorm";
 import { JwtService } from "@nestjs/jwt";
 import { UtilityService } from "./utility.service";
 import { ConfigService } from "@nestjs/config";
-import {
-  InvalidPasswordException,
-  IsNotAdminException,
-  NoLoginUserException,
-} from "../exceptions/login";
+import { ServiceException } from "../exceptions/service.exception";
 
 @Injectable()
 export class LoginService {
@@ -59,9 +55,7 @@ export class LoginService {
    * if password wrong returns 1
    * @param email - email of user
    * @param password - password of user
-   * @throws {NoLoginUserException}
-   * @throws {IsNotAdminException}
-   * @throws {InvalidPasswordException}
+   * @throws {"INVALID_CREDENTIALS"}
    * @returns access token
    */
   async login(
@@ -74,16 +68,16 @@ export class LoginService {
         email,
       },
     });
-    if (!user) throw new NoLoginUserException();
+    if (!user) throw new ServiceException("INVALID_CREDENTIALS");
 
     if (admin) {
-      if (!user.isAdmin) throw new IsNotAdminException();
+      if (!user.isAdmin) throw new ServiceException("INVALID_CREDENTIALS");
     }
     const comparisonResult = await this.utilityService.compareHash(
       password,
       user.password
     );
-    if (!comparisonResult) throw new InvalidPasswordException();
+    if (!comparisonResult) throw new ServiceException("INVALID_CREDENTIALS");
 
     const payload = {
       sub: user.id,

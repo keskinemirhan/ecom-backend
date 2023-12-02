@@ -6,14 +6,10 @@ import { CommercialItem } from "../entities/commercial-item.entity";
 import { ConfigService } from "@nestjs/config";
 import { BasketItem } from "../entities/basket-item.entity";
 import { AccountService } from "./account.service";
-import { UserNotFoundException } from "../exceptions/account";
+
 import { ItemService } from "./item.service";
-import { ItemNotFoundException } from "../exceptions/item";
-import {
-  BasketItemNotFoundException,
-  BasketLimitExceededException,
-  NotEnoughStockException,
-} from "../exceptions/basket";
+
+import { ServiceException } from "../exceptions/service.exception";
 
 @Injectable()
 export class BasketService {
@@ -39,10 +35,10 @@ export class BasketService {
    * @param itemId item id of basket item object's item
    * @param count count of item
    * @returns updated basket of user if successful
-   * @throws {UserNotFoundException}
-   * @throws {ItemNotFoundException}
-   * @throws {BasketLimitExceededException}
-   * @throws {NotEnoughStockException}
+   * @throws {"USER_NOT_FOUND"}
+   * @throws {"ITEM_NOT_FOUND"}
+   * @throws {"BASKET_LIMIT_EXCEEDED"}
+   * @throws {"INSUFFICIENT_STOCK"}
    */
   async updateBasketItem(userId: string, itemId: string, count: number) {
     const user = await this.accountService.getUserById(userId, {
@@ -51,7 +47,7 @@ export class BasketService {
 
     const item = await this.itemService.getItem(itemId);
 
-    if (count > item.quantity) throw new NotEnoughStockException();
+    if (count > item.quantity) throw new ServiceException("INSUFFICIENT_STOCK");
 
     const basket = user.basketItems;
 
@@ -61,7 +57,7 @@ export class BasketService {
       const lastTotal =
         (await this.calculateBasketCount(userId)) - basketItem.count + count;
       if (lastTotal > this.basketLimit)
-        throw new BasketLimitExceededException();
+        throw new ServiceException("BASKET_LIMIT_EXCEEDED");
 
       basketItem.count = count;
 
@@ -77,7 +73,7 @@ export class BasketService {
       const lastTotal = (await this.calculateBasketCount(userId)) + count;
 
       if (lastTotal > this.basketLimit)
-        throw new BasketLimitExceededException();
+        throw new ServiceException("BASKET_LIMIT_EXCEEDED");
 
       const newBasketItem = this.basketItemRepo.create();
       newBasketItem.item = item;
@@ -100,8 +96,8 @@ export class BasketService {
    * @param userId user id of user of basket
    * @param itemId item id of basket item to removed
    * @returns updated basket of user
-   * @throws {UserNotFoundException}
-   * @throws {BasketItemNotFoundException}
+   * @throws {"USER_NOT_FOUND"}
+   * @throws {"BASKET_ITEM_NOT_FOUND"}
    */
   async removeBasketItem(userId: string, itemId: string) {
     const user = await this.accountService.getUserById(userId, {
@@ -112,7 +108,7 @@ export class BasketService {
       (bItem) => bItem.item.id === itemId
     );
 
-    if (!basketItem) throw new BasketItemNotFoundException();
+    if (!basketItem) throw new ServiceException("BASKET_ITEM_NOT_FOUND");
 
     await this.basketItemRepo.remove(basketItem);
 
@@ -127,7 +123,7 @@ export class BasketService {
    * Calculates basket price of user with given id
    * @param userId id of user
    * @returns total price of basket
-   * @throws {UserNotFoundException}
+   * @throws {"USER_NOT_FOUND"}
    */
   async calculateBasketPrice(userId: string) {
     let price = 0;
@@ -146,7 +142,7 @@ export class BasketService {
    * Calculates total item count of basket of user given id
    * @param userId user id
    * @returns total item count
-   * @throws {UserNotFoundException}
+   * @throws {"USER_NOT_FOUND"}
    */
   async calculateBasketCount(userId: string) {
     let totalCount = 0;
@@ -165,7 +161,7 @@ export class BasketService {
    * Returns basket according to given user id
    * @param userId user of basket
    * @returns basket of user
-   * @throws {UserNotFoundException}
+   * @throws {"USER_NOT_FOUND"}
    */
   async getBasketByUserId(userId: string) {
     const user = await this.accountService.getUserById(userId, {
@@ -183,7 +179,7 @@ export class BasketService {
    * Removes all basket item of user with given id
    * @param userId id of user of basket
    * @returns basket of user
-   * @throws {UserNotFoundException}
+   * @throws {"USER_NOT_FOUND"}
    */
   async removeAllBasketItem(userId: string) {
     const user = await this.accountService.getUserById(userId, {

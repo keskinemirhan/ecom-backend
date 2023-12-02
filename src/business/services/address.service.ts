@@ -3,8 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { DeepPartial, FindOptionsRelations, Repository } from "typeorm";
 import { Address } from "../entities/address.entity";
 import { AccountService } from "./account.service";
-import { AddressNotFoundException } from "../exceptions/address";
-import { UserNotFoundException } from "../exceptions/account";
+import { ServiceException } from "../exceptions/service.exception";
 
 @Injectable()
 export class AddressService {
@@ -17,14 +16,14 @@ export class AddressService {
    * @param id id of user
    * @param relations relations to be queried
    * @returns address with given id
-   * @throws {AddressNotFoundException}
+   * @throws {"ADDRESS_NOT_FOUND"}
    */
   async getAddress(id: string, relations?: FindOptionsRelations<Address>) {
     const address = await this.addressRepo.findOne({
       where: { id },
       relations,
     });
-    if (!address) throw new AddressNotFoundException();
+    if (!address) throw new ServiceException("ADDRESS_NOT_FOUND");
     return address;
   }
   /**
@@ -32,11 +31,11 @@ export class AddressService {
    * @param id id of address to be updated
    * @param addressModel model of updated address
    * @returns updated address
-   * @throws {AddressNotFoundException}
+   * @throws {"ADDRESS_NOT_FOUND"}
    */
   async updateAddess(id: string, addressModel: DeepPartial<Address>) {
     const address = await this.addressRepo.findOne({ where: { id } });
-    if (!address) throw new AddressNotFoundException();
+    if (!address) throw new ServiceException("ADDRESS_NOT_FOUND");
     Object.assign(address, addressModel);
     return await this.addressRepo.save(address);
   }
@@ -45,11 +44,11 @@ export class AddressService {
    * Removes address with given id
    * @param id id of address to be removed
    * @returns removed address
-   * @throws {AddressNotFoundException}
+   * @throws {"ADDRESS_NOT_FOUND"}
    */
   async removeAddress(id: string) {
     const address = await this.addressRepo.findOne({ where: { id } });
-    if (!address) throw new AddressNotFoundException();
+    if (!address) throw new ServiceException("ADDRESS_NOT_FOUND");
     return await this.addressRepo.remove(address);
   }
 
@@ -67,7 +66,7 @@ export class AddressService {
    * Returns all addresses of user with given id
    * @param userId id of user
    * @returns all addresses of user with given id
-   * @throws {UserNotFoundException}
+   * @throws {"USER_NOT_FOUND"}
    */
   async getAllAddressByUserId(userId: string) {
     const user = await this.accountService.getUserById(userId);

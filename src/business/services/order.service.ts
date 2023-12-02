@@ -8,9 +8,8 @@ import {
   Repository,
 } from "typeorm";
 import { AccountService } from "./account.service";
-import { OrderNotFoundException } from "../exceptions/order";
-import { UserNotFoundException } from "../exceptions/account";
 import { PaginationOptions } from "../models/pagination-options";
+import { ServiceException } from "../exceptions/service.exception";
 
 interface OrderStatus {
   isPaid?: boolean;
@@ -36,7 +35,7 @@ export class OrderService {
    * @param conversationId conversation id of the order
    * @param status particular status to be toggled
    * @returns modified order
-   * @throws {OrderNotFoundExceptions}
+   * @throws {"ORDER_NOT_FOUND"}
    */
   async statusChange(conversationId: string, status: OrderStatus) {
     const order = await this.getOrder({ where: { conversationId } });
@@ -62,7 +61,7 @@ export class OrderService {
    * @param id id of orderd
    * @param orderModel model
    * @returns updated order
-   * @throws {OrderNotFoundException} if order not found
+   * @throws {"ORDER_NOT_FOUND"} if order not found
    */
   async updateOrder(id: string, orderModel: DeepPartial<Order>) {
     const order = await this.orderRepo.findOne({
@@ -74,7 +73,7 @@ export class OrderService {
         user: true,
       },
     });
-    if (!order) throw new OrderNotFoundException();
+    if (!order) throw new ServiceException("ORDER_NOT_FOUND");
     Object.assign(order, orderModel);
     return await this.orderRepo.save(order);
   }
@@ -83,11 +82,11 @@ export class OrderService {
    * Removes order with given id
    * @param id id of order
    * @returns removed item
-   * @throws {OrderNotFoundException}
+   * @throws {"ORDER_NOT_FOUND"}
    */
   async removeOrder(conversationId: string) {
     const order = await this.getOrder({ where: { conversationId } });
-    if (!order) throw new OrderNotFoundException();
+    if (!order) throw new ServiceException("ORDER_NOT_FOUND");
     return await this.orderRepo.remove(order);
   }
 
@@ -95,11 +94,11 @@ export class OrderService {
    * Returns order with given id
    * @param findOptions id of order
    * @returns returns order with given id
-   * @throws {OrderNotFoundException} if order not found
+   * @throws {"ORDER_NOT_FOUND"} if order not found
    */
   async getOrder(options: FindOneOptions<Order>) {
     const order = await this.orderRepo.findOne(options);
-    if (!order) throw new OrderNotFoundException();
+    if (!order) throw new ServiceException("ORDER_NOT_FOUND");
     return order;
   }
 
@@ -107,7 +106,7 @@ export class OrderService {
    * Returns user with given user id
    * @param userId id of user
    * @returns order of user
-   * @throws {UserNotFoundException}
+   * @throws {"USER_NOT_FOUND"}
    */
   async getOrdersByUser(userId: string) {
     const user = await this.accountService.getUserById(userId);

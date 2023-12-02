@@ -2,8 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CommercialItem } from "../entities/commercial-item.entity";
 import { DeepPartial, MoreThan, Repository } from "typeorm";
-import { UtilityService } from "./utility.service";
-import { ItemNotFoundException } from "../exceptions/item";
+import { ServiceException } from "../exceptions/service.exception";
 
 @Injectable()
 export class ItemService {
@@ -47,11 +46,11 @@ export class ItemService {
    * Returns item with given id
    * @param id id of the item
    * @returns item
-   * @throws {ItemNotFoundException}
+   * @throws {"ITEM_NOT_FOUND"}
    */
   async getItem(id: string) {
     const item = await this.itemRepo.findOne({ where: { id } });
-    if (!item) throw new ItemNotFoundException();
+    if (!item) throw new ServiceException("ITEM_NOT_FOUND");
     return item;
   }
 
@@ -68,22 +67,22 @@ export class ItemService {
    * Removes item with given id
    * @param id id of the item
    * @returns removed item
-   * @throws {ItemNotFoundException}
+   * @throws {"ITEM_NOT_FOUND"}
    */
   async removeItem(id: string) {
     const item = await this.itemRepo.findOne({ where: { id } });
-    if (!item) throw new ItemNotFoundException();
+    if (!item) throw new ServiceException("ITEM_NOT_FOUND");
     return await this.itemRepo.remove(item);
   }
 
   /**
    * Updates item with given model
    * @param itemModel item model with id (neccessary)
-   * @throws {ItemNotFoundException}
+   * @throws {"ITEM_NOT_FOUND"}
    */
   async updateItem(itemModel: DeepPartial<CommercialItem>) {
     const item = await this.itemRepo.findOne({ where: { id: itemModel.id } });
-    if (!item) throw new ItemNotFoundException();
+    if (!item) throw new ServiceException("ITEM_NOT_FOUND");
     Object.assign(item, itemModel);
     return await this.itemRepo.save(item);
   }
@@ -92,11 +91,11 @@ export class ItemService {
    * Return quantity of item with given id
    * @param id id of item
    * @returns stock count of item
-   * @throws {ItemNotFoundException}
+   * @throws {"ITEM_NOT_FOUND"}
    */
   async getItemStock(id: string) {
     const item = await this.itemRepo.findOne({ where: { id } });
-    if (!item) throw new ItemNotFoundException();
+    if (!item) throw new ServiceException("ITEM_NOT_FOUND");
     return item.quantity;
   }
 

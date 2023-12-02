@@ -8,20 +8,14 @@ import { MailService } from "./mail.service";
 import { ConfigService } from "@nestjs/config";
 import { EmailVerification } from "../entities/email-verification.entity";
 import { UtilityService } from "./utility.service";
-import {
-  AlreadyFailedVerificationException,
-  AlreadyVerifiedException,
-  EmailExistsException,
-  InvalidVerificationException,
-  NoVerificationException,
-  QuotaExceededException,
-  VerificationTimeoutException,
-} from "../exceptions/registration";
+import { ServiceException } from "../exceptions/service.exception";
+import { AccountService } from "./account.service";
 
 @Injectable()
 export class RegistrationService {
   private emailVTemplate: any;
   constructor(
+    private accountService: AccountService,
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(EmailVerification)
     private verificationRepo: Repository<EmailVerification>,
@@ -42,7 +36,7 @@ export class RegistrationService {
    * Registers user
    * @returns registered user
    * @param userModel - Partial user object email, is a neccessary field
-   * @throws {EmailExistsException} if email already exists
+   * @throws {"EMAIL_ALREADY_EXISTS"} if email already exists
    */
   async registerUser(userModel: DeepPartial<User>): Promise<User | undefined> {
     // Control if email is used already
@@ -51,7 +45,7 @@ export class RegistrationService {
         email: userModel.email,
       },
     });
-    if (controlEmail) throw new EmailExistsException();
+    if (controlEmail) throw new ServiceException("EMAIL_ALREADY_EXISTS");
 
     // Hash password
     userModel.password = await this.utilityService.hashString(
@@ -75,8 +69,8 @@ export class RegistrationService {
    * @param email - Email address to associate with given verification code
    * @param code - Verification code to associate with given email address
    * @param quota - Email verification creation quota for given email address default value is 10
-   * @throws {QuotaExceededException} if verification quota exceeded
-   * @throws {AlreadyVerifiedException} if account already verified
+   * @throws {"VERIFICATION_QUOTA_EXCEEDED"} if verification quota exceeded
+   * @throws {"ALREADY_VERIFIED"} if account already verified
    * @returns promise of EmailVerification if creation successful
    */
   async createEmailVerification(
@@ -89,7 +83,7 @@ export class RegistrationService {
         email,
       },
     });
-    if (user.verified) throw new AlreadyVerifiedException();
+    if (user.verified) throw new ServiceException("ALREADY_VERIFIED");
 
     const prevVerification = await this.verificationRepo.findOne({
       where: { email },
@@ -99,7 +93,8 @@ export class RegistrationService {
       count = prevVerification.count + 1;
       await this.verificationRepo.remove(prevVerification);
     }
-    if (count > quota) throw new QuotaExceededException();
+    if (count > quota)
+      throw new ServiceException("VERIFICATION_QUOTA_EXCEEDED");
     const verification = await this.verificationRepo.create({
       email,
       code,
@@ -132,10 +127,10 @@ export class RegistrationService {
    * return conditional number values
    * @param email - Email address that associated with code
    * @param code - Code to be used to verify email
-   * @throws {VerificationTimeoutException} if verification times is exceeded
-   * @throws {AlreadyFailedVerificationException} if already failed
-   * @throws {InvalidVerificationException} if invalid code is given
-   * @throws {NoVerificationException} if no verification found
+   * @throws {"VERIFICATION_TIMEOUT"} if verification times is exceeded
+   * @throws {"ALREADY_FAILED_VERIFICATION"} if already failed
+   * @throws {"INVALID_VERIFICATION_CODE"} if invalid code is given
+   * @throws {"NO_VERIFICATION_IN_PROCESS"} if no verification found
    */
   async verifyEmailVerification(email: string, code: string) {
     const verification = await this.verificationRepo.findOne({
@@ -143,23 +138,24 @@ export class RegistrationService {
         email,
       },
     });
-    if (!verification) throw new NoVerificationException();
+    if (!verification) throw new ServiceException("NO_VERIFICATION_IN_PROCESS");
     const currentDate = new Date();
     const verificationDate = verification.created_at;
     const differenceMin = this.utilityService.dateDifferenceMin(
       currentDate,
       verificationDate
     );
-    if (differenceMin > 2) throw new VerificationTimeoutException();
+    if (differenceMin > 2) throw new ServiceException("VERIFICATION_TIMEOUT");
 
-    if (verification.controlled) throw new AlreadyFailedVerificationException();
+    if (verification.controlled)
+      throw new ServiceException("ALREADY_FAILED_VERIFICATION");
     if (verification.code !== code) {
       verification.controlled = true;
       await this.verificationRepo.save(verification);
-      throw new InvalidVerificationException();
+      throw new ServiceException("INVALID_VERIFICATION_CODE");
     }
 
-    const user = await this.userRepo.findOne({ where: { email } });
+    const user = await this.accountService.getUserByEmail(email);
     user.verified = true;
     await this.userRepo.save(user);
     await this.verificationRepo.remove(verification);

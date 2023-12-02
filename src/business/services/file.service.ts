@@ -4,10 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FileObject } from "../entities/file-object.entity";
 import { Repository } from "typeorm";
-import {
-  FileNotFoundException,
-  NoFileGivenException,
-} from "../exceptions/file";
+import { ServiceException } from "../exceptions/service.exception";
 
 @Injectable()
 export class FileService {
@@ -27,10 +24,10 @@ export class FileService {
    * Uploads given file to storage
    * @param file file to be uploaded
    * @returns file object of the uploaded file
-   * @throws {NoFileGivenException}
+   * @throws {"EMPTY_FILE_GIVEN"}
    */
   async uploadFile(file: Express.Multer.File) {
-    if (!file) throw new NoFileGivenException();
+    if (!file) throw new ServiceException("EMPTY_FILE_GIVEN");
     const fileName = uuidv4() + file.originalname;
     const fileObj = this.fileRepo.create();
     fileObj.name = fileName;
@@ -64,11 +61,11 @@ export class FileService {
    * Removes file and file object by given id and returns removed file
    * @param id id of file object
    * @returns removed file object
-   * @throws {FileNotFoundException}
+   * @throws {"FILE_NOT_FOUND"}
    */
   async removeFile(id: string) {
     const fileObj = await this.fileRepo.findOne({ where: { id } });
-    if (!fileObj) throw new FileNotFoundException();
+    if (!fileObj) throw new ServiceException("FILE_NOT_FOUND");
 
     const fileName = fileObj.name;
 
@@ -83,12 +80,12 @@ export class FileService {
    * Returns file object with given id
    * @param id id of file object
    * @returns file object
-   * @throws {FileNotFoundException}
+   * @throws {"FILE_NOT_FOUND"}
    */
   async getFile(id: string) {
     const fileObj = await this.fileRepo.findOne({ where: { id } });
 
-    if (!fileObj) throw new FileNotFoundException();
+    if (!fileObj) throw new ServiceException("FILE_NOT_FOUND");
 
     return fileObj;
   }
