@@ -5,4 +5,5 @@ export class AddressException extends ServiceException {
 }
 export class AddressNotFoundException extends AddressException {
   message = "Address not found";
+  readonly code = "AD001";
 }

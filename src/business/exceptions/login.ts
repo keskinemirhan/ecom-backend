@@ -7,12 +7,15 @@ export class LoginException extends ServiceException {
 
 export class NoLoginUserException extends LoginException {
   message = "Account does not exists";
+  readonly code = "L001";
 }
 
 export class IsNotAdminException extends LoginException {
   message = "User is not admin";
+  readonly code = "L001";
 }
 
 export class InvalidPasswordException extends LoginException {
   message = "Password is invalid";
+  readonly code = "L001";
 }

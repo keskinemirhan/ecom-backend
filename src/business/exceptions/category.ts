@@ -6,4 +6,5 @@ export class CategoryException extends ServiceException {
 
 export class CategoryNotFoundException extends CategoryException {
   message = "Category not found";
+  readonly code = "C001";
 }

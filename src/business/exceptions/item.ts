@@ -7,4 +7,5 @@ export class ItemException extends ServiceException {
 
 export class ItemNotFoundException extends ItemException {
   message = "Item not found";
+  readonly code = "I001";
 }

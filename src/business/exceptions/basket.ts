@@ -5,12 +5,15 @@ export class BasketException extends ServiceException {
 }
 export class BasketLimitExceededException extends BasketException {
   message = "Basket count limit exceeded";
+  readonly code = "B002";
 }
 
 export class NotEnoughStockException extends BasketException {
   message = "Not enough stock";
+  readonly code = "B003";
 }
 
 export class BasketItemNotFoundException extends BasketException {
-  message = "Baslet item not found";
+  message = "Basket item not found";
+  readonly code = "B001";
 }
