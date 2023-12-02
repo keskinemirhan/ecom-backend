@@ -17,11 +17,10 @@ export class ItemController {
     type: ResponseItemDto,
     description: "Returns item with given id",
   })
-  @ApiBadGatewayResponse(errorApiInfo(["I001"]))
+  @ApiBadGatewayResponse(errorApiInfo(["ITEM_NOT_FOUND"]))
   @Get("id/:id")
   async getItem(@Param() params: any) {
     const item = await this.itemService.getItem(params.id);
-    if (item === -1) throw new BadRequestException(customError("I001"));
     return item;
   }
 
