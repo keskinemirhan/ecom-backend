@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Category } from "../entities/category.entity";
 import { DeepPartial, FindOptionsRelations, Repository } from "typeorm";
+import { CategoryNotFoundException } from "../exceptions/category";
 
 @Injectable()
 export class CategoryService {
@@ -22,14 +23,14 @@ export class CategoryService {
    * Returns category with given id
    * @param id id of category
    * @returns category
-   * @returns -1 if category with given id not found
+   * @throws {CategoryNotFound}
    */
   async getOneCategory(id: string, relations?: FindOptionsRelations<Category>) {
     const category = await this.categoryRepo.findOne({
       where: { id },
       relations,
     });
-    if (!category) return -1;
+    if (!category) throw new CategoryNotFoundException();
     return category;
   }
 
@@ -45,14 +46,14 @@ export class CategoryService {
   /**
    * Updates category with given category model
    * @param categoryModel category model
-   * @returns -1 if item with given id in category model not found
    * @returns updated category
+   * @throws {CategoryNotFoundException}
    */
   async updateCategory(categoryModel: DeepPartial<Category>) {
     const category = await this.categoryRepo.findOne({
       where: { id: categoryModel.id },
     });
-    if (!category) return -1;
+    if (!category) throw new CategoryNotFoundException();
     Object.assign(category, categoryModel);
 
     return await this.categoryRepo.save(category);
@@ -62,11 +63,11 @@ export class CategoryService {
    * Removes category with given id
    * @param id id of category to be removed
    * @returns removed cateogory
-   * @returns -1 if category with given id not found
+   * @throws {CategoryNotFoundException}
    */
   async removeCategory(id: string) {
     const category = await this.categoryRepo.findOne({ where: { id } });
-    if (!category) return -1;
+    if (!category) throw new CategoryNotFoundException();
 
     const removed = await this.categoryRepo.remove(category);
 

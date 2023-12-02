@@ -8,6 +8,7 @@ import {
   Repository,
 } from "typeorm";
 import { UtilityService } from "./utility.service";
+import { UserNotFoundException } from "../exceptions/account";
 
 @Injectable()
 export class AccountService {
@@ -18,23 +19,27 @@ export class AccountService {
   /**
    * Get User entity by email address of user
    * @param email - email address of user
-   * @returns - Promise of User entity if user not found returns null
+   * @returns - Promise of User entity
+   * @throws {UserNotFoundException} if user not found
    */
   async getUserByEmail(
     email: string,
     relations?: FindOptionsRelations<User>
-  ): Promise<User | null> {
-    return await this.userRepo.findOne({ where: { email }, relations });
+  ): Promise<User> {
+    const user = await this.userRepo.findOne({ where: { email }, relations });
+    if (!user) throw new UserNotFoundException();
+    return user;
   }
   /**
    * Updates user by given id
    * @param id - id of user that will be updated
    * @param userModel - user model that contains fields to update
-   * @returns - updated user entity if user does not exists returns -1
+   * @returns - updated user entity
+   * @throws {UserNotFoundException} if user not found
    */
   async updateUserById(id: string, userModel: DeepPartial<User>) {
     const user = await this.userRepo.findOne({ where: { id } });
-    if (!user) return -1;
+    if (!user) throw new UserNotFoundException();
     if (userModel.password) {
       const newPassword = await this.utilityService.hashString(
         userModel.password
@@ -44,10 +49,16 @@ export class AccountService {
     Object.assign(user, userModel);
     return await this.userRepo.save(user);
   }
-
+  /**
+   *
+   * @param id id of user
+   * @param relations relation query
+   * @returns user with given id
+   * @throws {UserNotFoundException}
+   */
   async getUserById(id: string, relations?: FindOptionsRelations<User>) {
     const user = await this.userRepo.findOne({ where: { id }, relations });
-    if (!user) return -1;
+    if (!user) throw new UserNotFoundException();
     return user;
   }
 }

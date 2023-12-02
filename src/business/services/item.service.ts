@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { CommercialItem } from "../entities/commercial-item.entity";
 import { DeepPartial, MoreThan, Repository } from "typeorm";
 import { UtilityService } from "./utility.service";
+import { ItemNotFoundException } from "../exceptions/item";
 
 @Injectable()
 export class ItemService {
@@ -46,11 +47,11 @@ export class ItemService {
    * Returns item with given id
    * @param id id of the item
    * @returns item
-   * @returns -1 if item not found
+   * @throws {ItemNotFoundException}
    */
   async getItem(id: string) {
     const item = await this.itemRepo.findOne({ where: { id } });
-    if (!item) return -1;
+    if (!item) throw new ItemNotFoundException();
     return item;
   }
 
@@ -67,22 +68,22 @@ export class ItemService {
    * Removes item with given id
    * @param id id of the item
    * @returns removed item
-   * @returns -1 if item not found
+   * @throws {ItemNotFoundException}
    */
   async removeItem(id: string) {
     const item = await this.itemRepo.findOne({ where: { id } });
-    if (!item) return -1;
+    if (!item) throw new ItemNotFoundException();
     return await this.itemRepo.remove(item);
   }
 
   /**
    * Updates item with given model
    * @param itemModel item model with id (neccessary)
-   * @returns -1 if item with given id in item model not found
+   * @throws {ItemNotFoundException}
    */
   async updateItem(itemModel: DeepPartial<CommercialItem>) {
     const item = await this.itemRepo.findOne({ where: { id: itemModel.id } });
-    if (!item) return -1;
+    if (!item) throw new ItemNotFoundException();
     Object.assign(item, itemModel);
     return await this.itemRepo.save(item);
   }
@@ -91,11 +92,11 @@ export class ItemService {
    * Return quantity of item with given id
    * @param id id of item
    * @returns stock count of item
-   * @returns -1 if item not found
+   * @throws {ItemNotFoundException}
    */
   async getItemStock(id: string) {
     const item = await this.itemRepo.findOne({ where: { id } });
-    if (!item) return -1;
+    if (!item) throw new ItemNotFoundException();
     return item.quantity;
   }
 

@@ -22,6 +22,8 @@ export class Order {
   @Column()
   totalPrice: string;
 
+  @Column()
+  status: string;
   // Event Records
   @Column()
   isPaid: boolean;

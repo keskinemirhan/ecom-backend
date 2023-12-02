@@ -5,20 +5,31 @@ import { User } from "../entities/user.entity";
 import { CommercialItem } from "../entities/commercial-item.entity";
 import { ConfigService } from "@nestjs/config";
 import { BasketItem } from "../entities/basket-item.entity";
+import { AccountService } from "./account.service";
+import { UserNotFoundException } from "../exceptions/account";
+import { ItemService } from "./item.service";
+import { ItemNotFoundException } from "../exceptions/item";
+import {
+  BasketItemNotFoundException,
+  BasketLimitExceededException,
+  NotEnoughStockException,
+} from "../exceptions/basket";
 
 @Injectable()
 export class BasketService {
   basketLimit: number;
   constructor(
+    private accountService: AccountService,
+    private itemService: ItemService,
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(CommercialItem)
     private itemRepo: Repository<CommercialItem>,
     private configService: ConfigService,
     @InjectRepository(BasketItem)
-    private basketItemRepo: Repository<BasketItem>,
+    private basketItemRepo: Repository<BasketItem>
   ) {
     this.basketLimit = Number(
-      this.configService.get<string>("BASKET_LIMIT", "500"),
+      this.configService.get<string>("BASKET_LIMIT", "500")
     );
   }
 
@@ -28,21 +39,19 @@ export class BasketService {
    * @param itemId item id of basket item object's item
    * @param count count of item
    * @returns updated basket of user if successful
-   * @returns -1 if user with given id not found
-   * @returns 1 if item with given id not found
-   * @returns 2 if basket count limit exceeded
+   * @throws {UserNotFoundException}
+   * @throws {ItemNotFoundException}
+   * @throws {BasketLimitExceededException}
+   * @throws {NotEnoughStockException}
    */
   async updateBasketItem(userId: string, itemId: string, count: number) {
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { basketItems: true },
+    const user = await this.accountService.getUserById(userId, {
+      basketItems: true,
     });
-    if (!user) return -1;
 
-    const item = await this.itemRepo.findOne({ where: { id: itemId } });
-    if (!item) return 1;
+    const item = await this.itemService.getItem(itemId);
 
-    if (count > item.quantity) return 3;
+    if (count > item.quantity) throw new NotEnoughStockException();
 
     const basket = user.basketItems;
 
@@ -51,15 +60,15 @@ export class BasketService {
     if (basketItem) {
       const lastTotal =
         (await this.calculateBasketCount(userId)) - basketItem.count + count;
-      if (lastTotal > this.basketLimit) return 2;
+      if (lastTotal > this.basketLimit)
+        throw new BasketLimitExceededException();
 
       basketItem.count = count;
 
       await this.basketItemRepo.save(basketItem);
 
-      const updatedUser = await this.userRepo.findOne({
-        where: { id: userId },
-        relations: { basketItems: true },
+      const updatedUser = await this.accountService.getUserById(userId, {
+        basketItems: true,
       });
 
       return updatedUser.basketItems;
@@ -67,7 +76,8 @@ export class BasketService {
     if (!basketItem) {
       const lastTotal = (await this.calculateBasketCount(userId)) + count;
 
-      if (lastTotal > this.basketLimit) return 2;
+      if (lastTotal > this.basketLimit)
+        throw new BasketLimitExceededException();
 
       const newBasketItem = this.basketItemRepo.create();
       newBasketItem.item = item;
@@ -76,11 +86,10 @@ export class BasketService {
       const savedBasket = await this.basketItemRepo.save(newBasketItem);
       user.basketItems.push(savedBasket);
 
-      await this.userRepo.save(user);
+      await this.accountService.updateUserById(user.id, user);
 
-      const updatedUser = await this.userRepo.findOne({
-        where: { id: userId },
-        relations: { basketItems: true },
+      const updatedUser = await this.accountService.getUserById(userId, {
+        basketItems: true,
       });
       return updatedUser.basketItems;
     }
@@ -91,28 +100,24 @@ export class BasketService {
    * @param userId user id of user of basket
    * @param itemId item id of basket item to removed
    * @returns updated basket of user
-   * @returns -1 if user with given id not found
-   * @returns 1 if item with given id not found
+   * @throws {UserNotFoundException}
+   * @throws {BasketItemNotFoundException}
    */
   async removeBasketItem(userId: string, itemId: string) {
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { basketItems: true },
+    const user = await this.accountService.getUserById(userId, {
+      basketItems: true,
     });
 
-    if (!user) return -1;
-
     const basketItem = user.basketItems.find(
-      (bItem) => bItem.item.id === itemId,
+      (bItem) => bItem.item.id === itemId
     );
 
-    if (!basketItem) return 1;
+    if (!basketItem) throw new BasketItemNotFoundException();
 
     await this.basketItemRepo.remove(basketItem);
 
-    const updatedUser = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { basketItems: true },
+    const updatedUser = await this.accountService.getUserById(userId, {
+      basketItems: true,
     });
 
     return updatedUser.basketItems;
@@ -122,16 +127,13 @@ export class BasketService {
    * Calculates basket price of user with given id
    * @param userId id of user
    * @returns total price of basket
-   * @returns -1 if user not found
+   * @throws {UserNotFoundException}
    */
   async calculateBasketPrice(userId: string) {
     let price = 0;
-    const foundUser = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { basketItems: true },
+    const foundUser = await this.accountService.getUserById(userId, {
+      basketItems: true,
     });
-
-    if (foundUser === null) return -1;
 
     foundUser.basketItems.forEach((bItem) => {
       price += bItem.count * bItem.item.price;
@@ -144,12 +146,12 @@ export class BasketService {
    * Calculates total item count of basket of user given id
    * @param userId user id
    * @returns total item count
+   * @throws {UserNotFoundException}
    */
   async calculateBasketCount(userId: string) {
     let totalCount = 0;
-    const foundUser = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { basketItems: true },
+    const foundUser = await this.accountService.getUserById(userId, {
+      basketItems: true,
     });
 
     foundUser.basketItems.forEach((bItem) => {
@@ -163,21 +165,16 @@ export class BasketService {
    * Returns basket according to given user id
    * @param userId user of basket
    * @returns basket of user
-   * @returns -1 if user not found
+   * @throws {UserNotFoundException}
    */
   async getBasketByUserId(userId: string) {
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: {
-        basketItems: {
-          item: {
-            category: true,
-          },
+    const user = await this.accountService.getUserById(userId, {
+      basketItems: {
+        item: {
+          category: true,
         },
       },
     });
-
-    if (!user) return -1;
 
     return user.basketItems;
   }
@@ -186,23 +183,19 @@ export class BasketService {
    * Removes all basket item of user with given id
    * @param userId id of user of basket
    * @returns basket of user
-   * @returns -1 if user not found
+   * @throws {UserNotFoundException}
    */
   async removeAllBasketItem(userId: string) {
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { basketItems: true },
+    const user = await this.accountService.getUserById(userId, {
+      basketItems: true,
     });
-
-    if (!user) return -1;
 
     for (const bItem of user.basketItems) {
       await this.basketItemRepo.remove(bItem);
     }
 
-    const updatedUser = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { basketItems: true },
+    const updatedUser = await this.accountService.getUserById(userId, {
+      basketItems: true,
     });
 
     return updatedUser.basketItems;

@@ -8,6 +8,15 @@ import { MailService } from "./mail.service";
 import { ConfigService } from "@nestjs/config";
 import { EmailVerification } from "../entities/email-verification.entity";
 import { UtilityService } from "./utility.service";
+import {
+  AlreadyFailedVerificationException,
+  AlreadyVerifiedException,
+  EmailExistsException,
+  InvalidVerificationException,
+  NoVerificationException,
+  QuotaExceededException,
+  VerificationTimeoutException,
+} from "../exceptions/registration";
 
 @Injectable()
 export class RegistrationService {
@@ -30,11 +39,10 @@ export class RegistrationService {
   }
 
   /**
-   * Registers user if email already used returns undefined
-   * if not returns created user object
-   * @returns Promise of created user if successful
-   * @returns Promise of undefined if email is used
+   * Registers user
+   * @returns registered user
    * @param userModel - Partial user object email, is a neccessary field
+   * @throws {EmailExistsException} if email already exists
    */
   async registerUser(userModel: DeepPartial<User>): Promise<User | undefined> {
     // Control if email is used already
@@ -43,9 +51,7 @@ export class RegistrationService {
         email: userModel.email,
       },
     });
-    if (controlEmail) {
-      return undefined;
-    }
+    if (controlEmail) throw new EmailExistsException();
 
     // Hash password
     userModel.password = await this.utilityService.hashString(
@@ -63,14 +69,14 @@ export class RegistrationService {
    * Creates EmailVerification entity on database that
    * correlates given email address with given code, if verification
    * creation quota exceeded for given email address then
-   * does not create EmailVerification entity and returns 1, if
-   * user already verified then returns -1.
+   * does not create EmailVerification entity and throws exception, if
+   * user already verified then throws exception
    *
    * @param email - Email address to associate with given verification code
    * @param code - Verification code to associate with given email address
    * @param quota - Email verification creation quota for given email address default value is 10
-   * @returns promise of -1 if account already verified
-   * @returns promise of 1 if quota exceeded
+   * @throws {QuotaExceededException} if verification quota exceeded
+   * @throws {AlreadyVerifiedException} if account already verified
    * @returns promise of EmailVerification if creation successful
    */
   async createEmailVerification(
@@ -83,7 +89,7 @@ export class RegistrationService {
         email,
       },
     });
-    if (user.verified) return -1;
+    if (user.verified) throw new AlreadyVerifiedException();
 
     const prevVerification = await this.verificationRepo.findOne({
       where: { email },
@@ -93,9 +99,7 @@ export class RegistrationService {
       count = prevVerification.count + 1;
       await this.verificationRepo.remove(prevVerification);
     }
-    if (count > quota) {
-      return 1;
-    }
+    if (count > quota) throw new QuotaExceededException();
     const verification = await this.verificationRepo.create({
       email,
       code,
@@ -128,41 +132,36 @@ export class RegistrationService {
    * return conditional number values
    * @param email - Email address that associated with code
    * @param code - Code to be used to verify email
-   *
-   * @returns 0 if successful
-   * @returns -1 if no EmailVerification found for given email
-   * @returns 1 if given time for verification code exceeded
-   * @returns 2 if given code does not match with the actual code
-   * @returns 3 if email verification already controlled and failed
+   * @throws {VerificationTimeoutException} if verification times is exceeded
+   * @throws {AlreadyFailedVerificationException} if already failed
+   * @throws {InvalidVerificationException} if invalid code is given
+   * @throws {NoVerificationException} if no verification found
    */
-  async verifyEmailVerification(email: string, code: string): Promise<number> {
+  async verifyEmailVerification(email: string, code: string) {
     const verification = await this.verificationRepo.findOne({
       where: {
         email,
       },
     });
-    if (!verification) return -1;
+    if (!verification) throw new NoVerificationException();
     const currentDate = new Date();
     const verificationDate = verification.created_at;
     const differenceMin = this.utilityService.dateDifferenceMin(
       currentDate,
       verificationDate
     );
-    if (differenceMin > 2) return 1;
+    if (differenceMin > 2) throw new VerificationTimeoutException();
 
-    if (verification.controlled) {
-      return 3;
-    }
+    if (verification.controlled) throw new AlreadyFailedVerificationException();
     if (verification.code !== code) {
       verification.controlled = true;
       await this.verificationRepo.save(verification);
-      return 2;
+      throw new InvalidVerificationException();
     }
 
     const user = await this.userRepo.findOne({ where: { email } });
     user.verified = true;
     await this.userRepo.save(user);
     await this.verificationRepo.remove(verification);
-    return 0;
   }
 }
