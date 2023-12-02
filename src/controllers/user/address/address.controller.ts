@@ -37,26 +37,17 @@ export class AddressController {
     private accountService: AccountService
   ) {}
 
-  async getUserAdresses(id: string) {
-    const user = await this.accountService.getUserById(id, {
-      addresses: true,
-    });
-    if (user == -1) throw new BadRequestException(customError("AC001"));
-    return user.addresses;
-  }
-
   @ApiOkResponse({
     type: ResponseGetAddressDto,
     description: "Get address with given id",
   })
-  @ApiBadRequestResponse(errorApiInfo(["AD001"]))
+  @ApiBadRequestResponse(errorApiInfo(["USER_NOT_FOUND", "ADDRESS_NOT_FOUND"]))
   @Get(":id")
   async getAddress(@Param("id") id: string, @CurrentUser() payload: User) {
     const userId = payload["id"];
-    const addresses = await this.getUserAdresses(userId);
-    const address = addresses.find((address) => address.id === id);
-    if (!address) throw new BadRequestException(customError("AD001"));
-
+    const address = await this.addressService.getAddress({
+      where: { user: { id: userId }, id },
+    });
     return new ResponseGetAddressDto(address);
   }
 
@@ -65,11 +56,11 @@ export class AddressController {
     isArray: true,
     description: "Get all address of the user",
   })
-  @ApiBadRequestResponse(errorApiInfo(["AD001"]))
+  @ApiBadRequestResponse(errorApiInfo(["USER_NOT_FOUND"]))
   @Get()
   async getAllAddress(@CurrentUser() currentUser: User) {
     const userId = currentUser.id;
-    const addresses = await this.getUserAdresses(userId);
+    const addresses = await this.addressService.getAllAddressByUserId(userId);
 
     const allAdress = addresses;
     const responseAllAdresses: ResponseGetAddressDto[] = [];
@@ -83,7 +74,7 @@ export class AddressController {
     type: ResponseUpdateAddressDto,
     description: "Create address",
   })
-  @ApiBadRequestResponse(errorApiInfo(["AD001"]))
+  @ApiBadRequestResponse(errorApiInfo(["USER_NOT_FOUND"]))
   @Post()
   async createAddress(
     @Body() addAddressDto: RequestAddAddressDto,
@@ -91,7 +82,6 @@ export class AddressController {
   ) {
     const userId = currentUser.id;
     const user = await this.accountService.getUserById(userId);
-    if (user === -1) throw new BadRequestException(customError("AC001"));
 
     const addressModel: DeepPartial<Address> = {
       user,
@@ -105,19 +95,19 @@ export class AddressController {
     type: ResponseUpdateAddressDto,
     description: "Update address with given id",
   })
-  @ApiBadRequestResponse(errorApiInfo(["AD001"]))
+  @ApiBadRequestResponse(errorApiInfo(["ADDRESS_NOT_FOUND"]))
   @Patch(":id")
   async updateAddress(
     @Param("id") id: string,
     @Body() updateAddressDto: RequestUpdateAddressDto,
     @CurrentUser() currentUser: User
   ) {
-    const addresses = await this.getUserAdresses(currentUser.id);
-    const address = addresses.find((addr) => addr.id === id);
-    if (!address) throw customError("AD001");
+    const userId = currentUser.id;
+    const address = await this.addressService.getAddress({
+      where: { user: { id: userId }, id },
+    });
     Object.assign(address, updateAddressDto);
     const updatedAddress = await this.addressService.updateAddess(id, address);
-    if (updatedAddress === -1) throw customError("AD001");
     return new ResponseUpdateAddressDto(updatedAddress);
   }
 
@@ -125,17 +115,18 @@ export class AddressController {
     type: ResponseRemoveAddressDto,
     description: "Remove address with given id",
   })
-  @ApiBadRequestResponse(errorApiInfo(["AD001"]))
+  @ApiBadRequestResponse(errorApiInfo(["ADDRESS_NOT_FOUND"]))
   @Delete(":id")
   async removeAddress(
     @Param("id") id: string,
     @CurrentUser() currentUser: User
   ) {
-    const addresses = await this.getUserAdresses(currentUser.id);
-    const address = addresses.find((addr) => addr.id === id);
-    if (!address) throw customError("AD001");
+    const userId = currentUser.id;
+    const address = await this.addressService.getAddress({
+      where: { user: { id: userId }, id },
+    });
+
     const removedAddress = await this.addressService.removeAddress(address.id);
-    if (removedAddress === -1) throw customError("AD001");
     return new ResponseRemoveAddressDto(removedAddress);
   }
 }

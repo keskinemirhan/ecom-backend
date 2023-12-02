@@ -29,7 +29,14 @@ export class BasketController {
       "Updates basket item with given properties returns basket with extra information",
     type: ResponseBasketDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["AC001", "B001", "B002", "B003"]))
+  @ApiBadRequestResponse(
+    errorApiInfo([
+      "USER_NOT_FOUND",
+      "ITEM_NOT_FOUND",
+      "BASKET_LIMIT_EXCEEDED",
+      "INSUFFICIENT_STOCK",
+    ])
+  )
   @Post()
   async updateBasket(
     @Body() requestUpdateBasketItem: RequestUpdateBasketItemDto,
@@ -45,14 +52,6 @@ export class BasketController {
       count
     );
 
-    if (basket === -1) throw new BadRequestException(customError("AC001"));
-
-    if (basket === 1) throw new BadRequestException(customError("B001"));
-
-    if (basket === 2) throw new BadRequestException(customError("B002"));
-
-    if (basket === 3) throw new BadRequestException(customError("B003"));
-
     const totalCount = await this.basketService.calculateBasketCount(userId);
     const totalPrice = await this.basketService.calculateBasketPrice(userId);
     return {
@@ -66,14 +65,12 @@ export class BasketController {
     description: "Returns basket with extra information",
     type: ResponseBasketDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["AC001"]))
+  @ApiBadRequestResponse(errorApiInfo(["USER_NOT_FOUND"]))
   @Get()
   async getBasket(@CurrentUser() payload: User) {
     const userId = payload.id;
 
     const basket = await this.basketService.getBasketByUserId(userId);
-
-    if (basket === -1) throw new BadRequestException(customError("AC001"));
 
     const totalCount = await this.basketService.calculateBasketCount(
       userId as string
@@ -93,17 +90,15 @@ export class BasketController {
       "Removes item with given id returns basket with extra properties",
     type: ResponseBasketDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["AC001", "B001"]))
+  @ApiBadRequestResponse(
+    errorApiInfo(["USER_NOT_FOUND", "BASKET_ITEM_NOT_FOUND"])
+  )
   @Delete(":id")
   async removeItem(@Param() params: any, @CurrentUser() payload: User) {
     const itemId = params.id;
     const userId = payload.id;
 
     const basket = await this.basketService.removeBasketItem(userId, itemId);
-
-    if (basket === -1) throw new BadRequestException(customError("AC001"));
-
-    if (basket === 1) throw new BadRequestException(customError("B001"));
 
     const totalCount = await this.basketService.calculateBasketCount(userId);
     const totalPrice = await this.basketService.calculateBasketPrice(userId);
@@ -118,13 +113,11 @@ export class BasketController {
     description: "Removes entire basket items ",
     type: ResponseBasketDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["AC001"]))
+  @ApiBadRequestResponse(errorApiInfo(["USER_NOT_FOUND"]))
   @Delete()
   async removeAllBasket(@CurrentUser() payload: User) {
     const userId = payload.id;
     const basket = await this.basketService.removeAllBasketItem(userId);
-
-    if (basket === -1) throw new BadRequestException(customError("AC001"));
 
     const totalCount = await this.basketService.calculateBasketCount(userId);
     const totalPrice = await this.basketService.calculateBasketPrice(userId);

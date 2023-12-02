@@ -34,15 +34,13 @@ export class FileControler {
     description:
       "Upload file to external storage service and return its mirror file object containing information",
   })
-  @ApiBadRequestResponse(errorApiInfo(["F001"]))
+  @ApiBadRequestResponse(errorApiInfo(["EMPTY_FILE_GIVEN"]))
   @Post()
   @UseInterceptors(FileInterceptor("file"))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File
   ): Promise<ResponseUploadFileDto> {
     const fileObj = await this.fileService.uploadFile(file);
-
-    if (fileObj === -1) throw new BadRequestException(customError("F001"));
 
     return {
       uploaded: fileObj,
@@ -52,13 +50,13 @@ export class FileControler {
     type: ResponseAllFileDto,
     description: " Returns all file object with given pagination  ",
   })
-  @ApiBadRequestResponse(errorApiInfo(["Q001"]))
+  @ApiBadRequestResponse(errorApiInfo(["PAGE_AND_TAKE_INVALID"]))
   @Get("all/:page/:size")
   async getAllFiles(@Param() params: any): Promise<ResponseAllFileDto> {
     const page = Number(params.page);
     const take = Number(params.size);
     if (isNaN(page) || isNaN(take))
-      throw new BadRequestException(customError("Q001"));
+      throw new BadRequestException(customError("PAGE_AND_TAKE_INVALID"));
     const files = await this.fileService.getAllFileObject(page, take);
 
     return this.utilityService.paginateResponse(files.files, page, take);
@@ -68,12 +66,10 @@ export class FileControler {
     type: ResponseFileDto,
     description: "Returns file object with given id",
   })
-  @ApiBadRequestResponse(errorApiInfo(["F002"]))
+  @ApiBadRequestResponse(errorApiInfo(["FILE_NOT_FOUND"]))
   @Get("one/:id")
   async getFile(@Param() params: any): Promise<ResponseFileDto> {
     const file = await this.fileService.getFile(params.id);
-
-    if (file === -1) throw new BadRequestException(customError("F002"));
 
     return file;
   }
@@ -83,12 +79,10 @@ export class FileControler {
     description:
       "Removes both item metadata on database and on external storage",
   })
-  @ApiBadRequestResponse(errorApiInfo(["F002"]))
+  @ApiBadRequestResponse(errorApiInfo(["FILE_NOT_FOUND"]))
   @Delete(":id")
   async removeFile(@Param() params: any): Promise<ResponseRemoveFileDto> {
     const removed = await this.fileService.removeFile(params.id);
-
-    if (removed === -1) throw new BadRequestException(customError("F002"));
 
     return {
       removed,

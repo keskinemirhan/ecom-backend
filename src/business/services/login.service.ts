@@ -62,7 +62,7 @@ export class LoginService {
     email: string,
     password: string,
     admin: boolean = false
-  ): Promise<string | -1 | 1 | 2> {
+  ): Promise<string> {
     const user = await this.userRepo.findOne({
       where: {
         email,

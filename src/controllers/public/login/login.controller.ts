@@ -18,7 +18,7 @@ export class LoginController {
     type: ResponseLoginDto,
     description: "User login returns access token",
   })
-  @ApiBadRequestResponse(errorApiInfo(["L001"]))
+  @ApiBadRequestResponse(errorApiInfo(["INVALID_CREDENTIALS"]))
   @Post()
   async login(
     @Body() requestLogin: RequestLoginDto
@@ -31,9 +31,6 @@ export class LoginController {
     const password = requestLogin.password;
     const result = await this.loginService.login(email, password);
 
-    if (result === -1 || result === 1 || result === 2)
-      throw new BadRequestException(customError("L001"));
-
     return {
       access_token: result,
       verified,
@@ -44,7 +41,7 @@ export class LoginController {
     type: ResponseLogadminDto,
     description: "Admin login returns access token",
   })
-  @ApiBadRequestResponse(errorApiInfo(["L001", "L002"]))
+  @ApiBadRequestResponse(errorApiInfo(["INVALID_CREDENTIALS"]))
   @Post("logadmin")
   async adminLogin(
     @Body() requestLogin: RequestLoginDto
@@ -53,10 +50,6 @@ export class LoginController {
 
     const password = requestLogin.password;
     const result = await this.loginService.login(email, password, true);
-
-    if (result === -1 || result === 1)
-      throw new BadRequestException(customError("L001"));
-    if (result === 2) throw new BadRequestException(customError("L002"));
 
     return {
       access_token: result,

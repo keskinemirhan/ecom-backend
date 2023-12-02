@@ -37,14 +37,13 @@ export class AccountController {
     type: ResponseAccountDto,
     description: "Gives account information about current user with jwt",
   })
-  @ApiBadRequestResponse(errorApiInfo(["AC001"]))
+  @ApiBadRequestResponse(errorApiInfo(["USER_NOT_FOUND"]))
   @Get()
   async getAccountInfo(@CurrentUser() payload: User) {
     const user = await this.accountService.getUserByEmail(payload.email, {
       addresses: false,
       basketItems: false,
     });
-    if (!user) return new BadRequestException(customError("AC001"));
     return new ResponseAccountDto(user);
   }
 
@@ -52,7 +51,9 @@ export class AccountController {
     type: ResponseUpdateAccountDto,
     description: "Updates user info",
   })
-  @ApiUnauthorizedResponse(errorApiInfo(["AC001", "AC002"]))
+  @ApiUnauthorizedResponse(
+    errorApiInfo(["INVALID_CREDENTIALS", "USER_NOT_FOUND"])
+  )
   @Post()
   async updateAccount(
     @Body() requestUpdateAccount: RequestUpdateAccountDto,
@@ -63,16 +64,11 @@ export class AccountController {
       payload["email"],
       authPassword
     );
-    if (passControl === 1)
-      throw new UnauthorizedException(customError("AC002"));
-    if (passControl === -1)
-      throw new UnauthorizedException(customError("AC001"));
 
     const updated = await this.accountService.updateUserById(
       payload["id"],
       updateModel
     );
-    if (updated === -1) throw new UnauthorizedException(customError("AC001"));
     return new ResponseUpdateAccountDto(updated);
   }
 }

@@ -25,7 +25,7 @@ export class AdminAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException(customError("A001"));
+      throw new UnauthorizedException(customError("LOGIN_REQUIRED"));
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
@@ -33,13 +33,11 @@ export class AdminAuthGuard implements CanActivate {
       });
       const user = await this.accountService.getUserByEmail(payload.email);
 
-      if (!user) throw new BadRequestException(customError("AC001"));
-
       if (!user.isAdmin) throw new NotFoundException();
 
       request["user"] = payload;
     } catch {
-      throw new UnauthorizedException(customError("A002"));
+      throw new UnauthorizedException(customError("INVALID_TOKEN"));
     }
 
     return true;

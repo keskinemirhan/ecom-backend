@@ -31,7 +31,7 @@ export class RegisterController {
       "Returns email and Jwt , sends verification email with code to registered email address",
     type: ResponseRegisterDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["R001"]))
+  @ApiBadRequestResponse(errorApiInfo(["EMAIL_ALREADY_EXISTS"]))
   @Post()
   async register(
     @Body() requestRegister: RequestRegisterDto
@@ -39,9 +39,6 @@ export class RegisterController {
     const registerResult = await this.registrationService.registerUser(
       requestRegister
     );
-    if (!registerResult) {
-      throw new BadRequestException(customError("R001"));
-    }
 
     const email = requestRegister.email;
     const name = requestRegister.name;
@@ -65,7 +62,14 @@ export class RegisterController {
     description: "Returns success as true",
     type: ResponseVerifyEmailDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["R002", "R003", "R004", "R005"]))
+  @ApiBadRequestResponse(
+    errorApiInfo([
+      "VERIFICATION_TIMEOUT",
+      "ALREADY_FAILED_VERIFICATION",
+      "INVALID_VERIFICATION_CODE",
+      "NO_VERIFICATION_IN_PROCESS",
+    ])
+  )
   @Post("email-verification")
   async verifyEmail(
     @Body() requestVerifyEmail: RequestVerifyEmailDto
@@ -80,14 +84,6 @@ export class RegisterController {
         payload["email"],
         code
       );
-    if (verificationResult === -1)
-      throw new BadRequestException(customError("R002"));
-    if (verificationResult === 1)
-      throw new BadRequestException(customError("R003"));
-    if (verificationResult === 2)
-      throw new BadRequestException(customError("R004"));
-    if (verificationResult === 3)
-      throw new BadRequestException(customError("R005"));
     return {
       success: true,
     };
@@ -98,7 +94,13 @@ export class RegisterController {
       "Returns email and sends verification email to access token's email address ",
     type: ResponseEmailVerficationDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["R006", "R007", "R008"]))
+  @ApiBadRequestResponse(
+    errorApiInfo([
+      "INVALID_TOKEN",
+      "VERIFICATION_QUOTA_EXCEEDED",
+      "ALREADY_VERIFIED",
+    ])
+  )
   @Get("email-verification")
   async requestEmailVerification(
     @Body() requestEmailVerification: RequestEmailVerificationDto
@@ -110,7 +112,7 @@ export class RegisterController {
         secret: process.env["JWT_SECRET"] || "secret",
       });
     } catch {
-      throw new BadRequestException(customError("R008"));
+      throw new BadRequestException(customError("INVALID_TOKEN"));
     }
     const email = payload["email"] as string;
     const name = payload["name"] as string;
@@ -119,8 +121,6 @@ export class RegisterController {
       email,
       code
     );
-    if (result === -1) throw new BadRequestException(customError("R006"));
-    if (result === 1) throw new BadRequestException(customError("R007"));
     await this.registrationService.sendEmailVerification(email, name, code);
 
     return {

@@ -1,32 +1,36 @@
 import { ApiResponseOptions } from "@nestjs/swagger";
 import { ResponseErrorDto } from "./response-error.dto";
+import { ServiceError } from "src/business/exceptions/service.exception";
+import { AuthError } from "src/business/exceptions/auth.exception";
+import { ControllerError } from "../exception/controller";
 
-export const ErrorCodeDescriptions = {
-  R001: "Email already in use",
-  R002: "No verification for email",
-  R003: "Given verification time exceeded",
-  R004: "Verification code does not match",
-  R005: "Failed verification session please create another session ",
-  R006: "Account already verified",
-  R007: "Verification quota exceeded please try again later",
-  R008: "Jwt is not valid",
-  L001: "Credentials are wrong",
-  L002: "User is not admin",
-  A001: "Have to log in to use this endpoint ",
-  A002: "Invalid token",
-  AC001: "User does not exists",
-  AC002: "Password is wrong",
-  B001: "Item not found",
-  B002: "Basket limit exceeded",
-  B003: "Cannot add more than stock quantity",
-  C001: "Category not found",
-  I001: "Item not found",
-  F001: "Empty file field",
-  F002: "File with given id not found",
-  Q001: "One or all of the query params are not number ",
-  P001: "Basket is empty",
-  AD001: "Address not found",
-  P002: "Invalid order",
+export const ErrorCodeDescriptions: {
+  [K in AuthError | ServiceError | ControllerError]: string;
+} = {
+  EMAIL_ALREADY_EXISTS: "Email already in use",
+  NO_VERIFICATION_IN_PROCESS: "No verification for email",
+  VERIFICATION_TIMEOUT: "Given verification time exceeded",
+  INVALID_VERIFICATION_CODE: "Verification code does not match",
+  ALREADY_FAILED_VERIFICATION:
+    "Failed verification session please create another session ",
+  ALREADY_VERIFIED: "Account already verified",
+  VERIFICATION_QUOTA_EXCEEDED:
+    "Verification quota exceeded please try again later",
+  INVALID_TOKEN: "Token is not valid",
+  INVALID_CREDENTIALS: "Credentials are invalid",
+  LOGIN_REQUIRED: "Have to log in to use this endpoint ",
+  USER_NOT_FOUND: "User does not exists",
+  BASKET_ITEM_NOT_FOUND: "Item not found",
+  BASKET_LIMIT_EXCEEDED: "Basket limit exceeded",
+  INSUFFICIENT_STOCK: "Cannot add more than stock quantity",
+  CATEGORY_NOT_FOUND: "Category not found",
+  ITEM_NOT_FOUND: "Item not found",
+  EMPTY_FILE_GIVEN: "Empty file field",
+  FILE_NOT_FOUND: "File with given id not found",
+  QUERY_PARAMS_NOT_NUMBER: "One or all of the query params are not number ",
+  EMPTY_BASKET: "Basket is empty",
+  ADDRESS_NOT_FOUND: "Address not found",
+  INVALID_ORDER: "Invalid order",
   MD0: "Invalid 3D Secure signature or verification",
   MD2: "Card holder or Issuer not registered to 3D Secure network",
   MD3: "Issuer is not registered to 3D secure network",
@@ -36,7 +40,9 @@ export const ErrorCodeDescriptions = {
   MD7: "System error",
   MD8: "Unknown card",
   MD9: "Unknown error",
-  P003: "Order does not exist",
+  ORDER_NOT_FOUND: "Order does not exist",
+  PAGE_AND_TAKE_INVALID:
+    "Take and page numbers must be greater than 1 and should be integers",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 
@@ -45,10 +51,12 @@ export type ErrorCode = keyof typeof ErrorCodeDescriptions;
  * @param code - code of the error
  * @returns created error object
  */
-export function customError(code: ErrorCode): ResponseErrorDto {
+export function customError(
+  code: ServiceError | AuthError | ErrorCode
+): ResponseErrorDto {
   return {
     errorCode: code,
-    error: ErrorCodeDescriptions[code],
+    error: ErrorCodeDescriptions[code] || " ",
   };
 }
 
@@ -57,10 +65,12 @@ export function customError(code: ErrorCode): ResponseErrorDto {
  * @param codes - error codes
  * @returns string of list of error codes and their descriptions
  */
-export function customErrorDescription(codes: ErrorCode[]): string {
+export function customErrorDescription(
+  codes: ServiceError[] | AuthError[] | ErrorCode[]
+): string {
   let description = "";
   for (const code of codes) {
-    description += ` | ${code} - ${ErrorCodeDescriptions[code]} | `;
+    description += ` | ${code} - ${ErrorCodeDescriptions[code] || " "} | `;
   }
   return description;
 }
@@ -72,7 +82,9 @@ export function customErrorDescription(codes: ErrorCode[]): string {
  * @param codes - error codes the endpoint gives
  * @returns ApiResponseObject to use as parameter to swagger decorator
  */
-export function errorApiInfo(codes: ErrorCode[]): ApiResponseOptions {
+export function errorApiInfo(
+  codes: ServiceError[] | AuthError[] | ErrorCode[]
+): ApiResponseOptions {
   const description = "Error codes : " + customErrorDescription(codes);
   return {
     type: ResponseErrorDto,

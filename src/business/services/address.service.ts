@@ -1,6 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DeepPartial, FindOptionsRelations, Repository } from "typeorm";
+import {
+  DeepPartial,
+  FindOneOptions,
+  FindOptionsRelations,
+  Repository,
+} from "typeorm";
 import { Address } from "../entities/address.entity";
 import { AccountService } from "./account.service";
 import { ServiceException } from "../exceptions/service.exception";
@@ -18,11 +23,8 @@ export class AddressService {
    * @returns address with given id
    * @throws {"ADDRESS_NOT_FOUND"}
    */
-  async getAddress(id: string, relations?: FindOptionsRelations<Address>) {
-    const address = await this.addressRepo.findOne({
-      where: { id },
-      relations,
-    });
+  async getAddress(options: FindOneOptions<Address>) {
+    const address = await this.addressRepo.findOne(options);
     if (!address) throw new ServiceException("ADDRESS_NOT_FOUND");
     return address;
   }

@@ -44,7 +44,7 @@ export class SetCategoryController {
     description: "Updates item and returns updated item",
     type: ResponseUpdateCategoryDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["C001"]))
+  @ApiBadRequestResponse(errorApiInfo(["CATEGORY_NOT_FOUND"]))
   @Patch(":id")
   async updateCategory(
     @Body() requestUpdateCategory: RequestUpdateCategoryDto,
@@ -52,8 +52,6 @@ export class SetCategoryController {
   ): Promise<ResponseUpdateCategoryDto> {
     const categoryModel = { ...requestUpdateCategory, id: params.id };
     const updated = await this.categoryService.updateCategory(categoryModel);
-
-    if (updated === -1) throw new BadRequestException(customError("C001"));
 
     return {
       updated,
@@ -64,7 +62,7 @@ export class SetCategoryController {
     description: "Removes item and returns removed item",
     type: ResponseRemoveCategoryDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["C001"]))
+  @ApiBadRequestResponse(errorApiInfo(["CATEGORY_NOT_FOUND"]))
   @Delete(":id")
   async removeCategory(
     @Param() params: any
@@ -72,8 +70,6 @@ export class SetCategoryController {
     const id = params.id;
 
     const removed = await this.categoryService.removeCategory(id);
-
-    if (removed === -1) throw new BadRequestException(customError("C001"));
 
     return {
       removed,

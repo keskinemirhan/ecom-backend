@@ -1,12 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ErrorCode } from "./errors";
+import { AuthError } from "src/business/exceptions/auth.exception";
+import { ServiceError } from "src/business/exceptions/service.exception";
+import { ControllerError } from "../exception/controller";
 
 export class ResponseErrorDto {
   @ApiProperty({
     description: "Error Code ",
-    example: "R001",
+    example: "USER_NOT_FOUND",
   })
-  errorCode: ErrorCode;
+  errorCode: AuthError | ServiceError | ControllerError;
 
   @ApiProperty({
     description: "Error Description",

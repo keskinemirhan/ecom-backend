@@ -31,37 +31,33 @@ export class PaymentController {
     private basketService: BasketService,
     private orderService: OrderService,
     private addressService: AddressService,
-    private accountService: AccountService,
+    private accountService: AccountService
   ) {}
 
   @ApiOkResponse({
     description: "Checkout endpoint, takes payment info and starts 3D payment",
     type: ResponseStarTdsDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["AC001", "AD001", "P001"]))
+  @ApiBadRequestResponse(
+    errorApiInfo(["USER_NOT_FOUND", "ADDRESS_NOT_FOUND", "EMPTY_BASKET"])
+  )
   @UseGuards(AuthGuard)
   @Post()
   async startThreeDs(
     @Body() startTds: RequestStartTdsDto,
     @CurrentUser() currentUser: User,
     @Res() res: Response,
-    @Req() req: Request,
+    @Req() req: Request
   ) {
     const user = await this.accountService.getUserById(currentUser["id"]);
-    if (user === -1) throw new BadRequestException(customError("AC001"));
-    const basket = await this.basketService.getBasketByUserId(
-      currentUser["id"],
-    );
-    if (basket === -1) throw new BadRequestException(customError("AC001"));
-    const address = await this.addressService.getAddress(
-      startTds.shippingAddressId,
-    );
-    if (address === -1) throw new BadRequestException(customError("AD001"));
+    const basket = await this.basketService.getBasketByUserId(user.id);
+    const address = await this.addressService.getAddress({
+      where: { user: { id: user.id } },
+    });
 
-    if (basket.length === 0) throw new BadRequestException(customError("P001"));
-    const totalPrice = await this.basketService.calculateBasketPrice(
-      currentUser["id"],
-    );
+    if (basket.length === 0)
+      throw new BadRequestException(customError("EMPTY_BASKET"));
+    const totalPrice = await this.basketService.calculateBasketPrice(user.id);
 
     const order = await this.orderService.createOrder({
       totalPrice: String(totalPrice),
@@ -116,7 +112,7 @@ export class PaymentController {
             conversationId: undefined,
           });
         }
-      },
+      }
     );
   }
   // continue error responses
@@ -135,7 +131,9 @@ export class PaymentController {
       "MD7",
       "MD8",
       "MD9",
-    ]),
+      "ORDER_NOT_FOUND",
+      "USER_NOT_FOUND",
+    ])
   )
   @Post("emitter")
   async emit(@Res() res: Response, @Body() body: RequestPaymentEmitterDto) {
@@ -173,17 +171,12 @@ export class PaymentController {
       },
     });
 
-    if (order === -1) {
-      throw customError("P002");
-    }
     const updatedOrder = await this.orderService.updateOrder(
       order.conversationId,
       {
         paymentId: body.paymentId,
-      },
+      }
     );
-
-    if (updatedOrder === -1) throw new BadRequestException(customError("P002"));
 
     await this.paymentService.completeThreeDs(
       body.conversationId,
@@ -215,19 +208,16 @@ export class PaymentController {
               user: true,
             },
           });
-          if (currentOrder === -1)
-            throw new BadRequestException(customError("P003"));
           const removedBasket = await this.basketService.getBasketByUserId(
-            currentOrder.user.id,
+            currentOrder.user.id
           );
           const totalPrice = await this.basketService.calculateBasketPrice(
-            currentOrder.user.id,
+            currentOrder.user.id
           );
           const removeResult = await this.basketService.removeAllBasketItem(
-            currentOrder.user.id,
+            currentOrder.user.id
           );
-          if (removeResult === -1 || removedBasket === -1 || totalPrice === -1)
-            throw new BadRequestException(customError("AC001"));
+
           res.send({
             status: result.status,
             conversationId: result.conversationId,
@@ -235,7 +225,7 @@ export class PaymentController {
             price: totalPrice,
           });
         }
-      },
+      }
     );
   }
 }

@@ -14,11 +14,10 @@ export class CategoryController {
     type: ResponseCategoryDto,
     description: "Returns category by id",
   })
-  @ApiBadRequestResponse(errorApiInfo(["C001"]))
+  @ApiBadRequestResponse(errorApiInfo(["CATEGORY_NOT_FOUND"]))
   @Get(":id")
   async getCategory(@Param() params: any): Promise<ResponseCategoryDto> {
     const category = await this.categoryService.getOneCategory(params.id);
-    if (category === -1) throw new BadRequestException(customError("C001"));
     return {
       id: category.id,
       name: category.name,

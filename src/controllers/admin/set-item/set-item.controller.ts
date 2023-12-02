@@ -33,14 +33,12 @@ export class SetItemController {
     description: "Adds item with given properties",
     type: ResponseAddItemDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["C001"]))
+  @ApiBadRequestResponse(errorApiInfo(["CATEGORY_NOT_FOUND"]))
   @Post()
   async addItem(@Body() requestAddItem: RequestAddItemDto) {
     const category = await this.categoryService.getOneCategory(
       requestAddItem.categoryId
     );
-
-    if (category === -1) throw new BadRequestException(customError("C001"));
 
     const { categoryId, ...itemModel } = requestAddItem;
 
@@ -56,7 +54,7 @@ export class SetItemController {
     description: "Updates item with given properties",
     type: ResponseUpdateItemDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["C001", "I001"]))
+  @ApiBadRequestResponse(errorApiInfo(["ITEM_NOT_FOUND", "CATEGORY_NOT_FOUND"]))
   @Patch(":id")
   async updateItem(
     @Param() params: any,
@@ -66,14 +64,10 @@ export class SetItemController {
 
     const { categoryId, ...itemModel } = requestUpdateItem;
 
-    if (item === -1) throw new BadRequestException(customError("I001"));
-
     if (requestUpdateItem.categoryId) {
       const category = await this.categoryService.getOneCategory(
         requestUpdateItem.categoryId
       );
-
-      if (category === -1) throw new BadRequestException(customError("C001"));
 
       item.category = category;
     }
@@ -82,8 +76,6 @@ export class SetItemController {
 
     const updated = await this.itemService.updateItem(item);
 
-    if (updated === -1) throw new BadRequestException(customError("I001"));
-
     return updated;
   }
 
@@ -91,11 +83,10 @@ export class SetItemController {
     description: "Removes item with given properties",
     type: ResponseRemoveItemDto,
   })
-  @ApiBadRequestResponse(errorApiInfo(["I001"]))
+  @ApiBadRequestResponse(errorApiInfo(["ITEM_NOT_FOUND"]))
   @Delete(":id")
   async removeItem(@Param() params: any) {
     const removed = await this.itemService.removeItem(params.id);
-    if (removed === -1) throw new BadRequestException(customError("I001"));
     return removed;
   }
 }
