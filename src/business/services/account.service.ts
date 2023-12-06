@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
 import {
   DeepPartial,
+  FindManyOptions,
   FindOneOptions,
   FindOptionsRelations,
   Repository,
@@ -16,6 +17,16 @@ export class AccountService {
     @InjectRepository(User) private userRepo: Repository<User>,
     private utilityService: UtilityService
   ) {}
+
+  /**
+   * Query users
+   * @param options query options
+   * @returns query results
+   */
+  async getAllUser(options?: FindManyOptions<User>) {
+    return this.userRepo.find(options);
+  }
+
   /**
    * Get User entity by email address of user
    * @param email - email address of user
@@ -60,5 +71,17 @@ export class AccountService {
     const user = await this.userRepo.findOne({ where: { id }, relations });
     if (!user) throw new ServiceException("USER_NOT_FOUND");
     return user;
+  }
+
+  /**
+   *
+   * @param options query options
+   * @returns  removed user
+   * @throws {"USER_NOT_FOUND"}
+   */
+  async removeUser(options: FindOneOptions<User>) {
+    const user = await this.userRepo.findOne(options);
+    if (!user) throw new ServiceException("USER_NOT_FOUND");
+    return this.userRepo.remove(user);
   }
 }

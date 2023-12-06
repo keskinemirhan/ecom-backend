@@ -22,6 +22,8 @@ import { BasketItem } from "./entities/basket-item.entity";
 import { PaymentService } from "./services/payment.service";
 import { OrderService } from "./services/order.service";
 import { AddressService } from "./services/address.service";
+import { ScheduleModule } from "@nestjs/schedule";
+import { TaskService } from "./services/task.service";
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { AddressService } from "./services/address.service";
       FileObject,
       BasketItem,
     ]),
+    ScheduleModule.forRoot(),
   ],
   providers: [
     RegistrationService,
@@ -51,6 +54,7 @@ import { AddressService } from "./services/address.service";
     PaymentService,
     OrderService,
     AddressService,
+    TaskService,
   ],
   exports: [
     RegistrationService,

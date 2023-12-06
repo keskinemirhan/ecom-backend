@@ -27,6 +27,19 @@ export class UtilityService {
   }
 
   /**
+   * Get day difference between two Date objects
+   * @param date1 First Date
+   * @param date2 Second Date
+   * @returns day difference in number
+   */
+  getDayDifference(date1: Date, date2: Date) {
+    const secDifference = Math.abs((date1.getTime() - date2.getTime()) / 1000);
+    const dayDifference =
+      secDifference / 60 /* minutes*/ / 60 /* hours*/ / 24; /* days*/
+    return dayDifference;
+  }
+
+  /**
    * Hashes given string with randomly generated salt
    * and returns promise of string that contains hash and salt
    * @param string - string to be hashed

@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -33,6 +34,9 @@ export class User {
 
   @Column()
   verified: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @Column({ default: false })
   isAdmin: boolean;
