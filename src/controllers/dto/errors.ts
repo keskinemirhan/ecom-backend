@@ -43,6 +43,7 @@ export const ErrorCodeDescriptions: {
   ORDER_NOT_FOUND: "Order does not exist",
   PAGE_AND_TAKE_INVALID:
     "Take and page numbers must be greater than 1 and should be integers",
+  ACCOUNT_NOT_VERIFIED: "Account is not verified",
 };
 export type ErrorCode = keyof typeof ErrorCodeDescriptions;
 

@@ -15,6 +15,7 @@ export const CONTROLLER_ERRORS = [
   "MD8",
   "MD9",
   "PAGE_AND_TAKE_INVALID",
+  "ACCOUNT_NOT_VERIFIED",
 ] as const;
 export type ControllerError = (typeof CONTROLLER_ERRORS)[number];
 

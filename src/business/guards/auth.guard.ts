@@ -8,6 +8,7 @@ import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { customError } from "src/controllers/dto/errors";
 import { AccountService } from "../services/account.service";
+import { User } from "../entities/user.entity";
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -29,6 +30,9 @@ export class AuthGuard implements CanActivate {
       request["user"] = user;
     } catch {
       throw new UnauthorizedException(customError("INVALID_TOKEN"));
+    }
+    if (!(request["user"] as User).verified) {
+      throw new UnauthorizedException(customError("ACCOUNT_NOT_VERIFIED"));
     }
     return true;
   }
