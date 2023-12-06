@@ -24,12 +24,13 @@ export class LoginController {
     @Body() requestLogin: RequestLoginDto
   ): Promise<ResponseLoginDto> {
     const email = requestLogin.email;
+    const password = requestLogin.password;
+
+    const result = await this.loginService.login(email, password);
 
     const user = await this.accountService.getUserByEmail(email);
 
     const verified = user.verified;
-    const password = requestLogin.password;
-    const result = await this.loginService.login(email, password);
 
     return {
       access_token: result,
