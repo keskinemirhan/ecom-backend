@@ -12,7 +12,7 @@ export class ResponseErrorDto {
 
   @ApiProperty({
     description: "Error Description",
-    example: "Email already in use",
+    example: "User not found",
   })
   error: string;
 }
