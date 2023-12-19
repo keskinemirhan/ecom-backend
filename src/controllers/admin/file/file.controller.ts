@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -19,6 +20,7 @@ import { ResponseUploadFileDto } from "./dto/response-upload-file.dto";
 import { ResponseAllFileDto } from "./dto/response-all-file.dto";
 import { ResponseFileDto } from "./dto/response-file.dto";
 import { ResponseRemoveFileDto } from "./dto/response-remove-file.dto copy";
+import { QueryPagination } from "src/controllers/dto/query-pagination.dto";
 
 @ApiTags("Admin File Setters")
 @UseGuards(AdminAuthGuard)
@@ -51,15 +53,20 @@ export class FileControler {
     description: " Returns all file object with given pagination  ",
   })
   @ApiBadRequestResponse(errorApiInfo(["PAGE_AND_TAKE_INVALID"]))
-  @Get("all/:page/:size")
-  async getAllFiles(@Param() params: any): Promise<ResponseAllFileDto> {
-    const page = Number(params.page);
-    const take = Number(params.size);
-    if (isNaN(page) || isNaN(take))
-      throw new BadRequestException(customError("PAGE_AND_TAKE_INVALID"));
-    const files = await this.fileService.getAllFileObject(page, take);
+  @Get("all")
+  async getAllFiles(
+    @Query() query: QueryPagination
+  ): Promise<ResponseAllFileDto> {
+    const files = await this.fileService.getAllFileObject(
+      query.page,
+      query.take
+    );
 
-    return this.utilityService.paginateResponse(files.files, page, take);
+    return this.utilityService.paginateResponse(
+      files.files,
+      query.page,
+      query.take
+    );
   }
 
   @ApiOkResponse({

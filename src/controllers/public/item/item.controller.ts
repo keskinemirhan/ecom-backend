@@ -1,10 +1,11 @@
-import { BadRequestException, Controller, Get, Param } from "@nestjs/common";
+import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiBadGatewayResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { ItemService } from "src/business/services/item.service";
-import { customError, errorApiInfo } from "src/controllers/dto/errors";
+import { errorApiInfo } from "src/controllers/dto/errors";
 import { ResponseAllItemsDto } from "./dto/response-all-items.dto";
 import { ResponseItemDto } from "./dto/response-item.dto";
 import { UtilityService } from "src/business/services/utility.service";
+import { QueryPagination } from "src/controllers/dto/query-pagination.dto";
 
 @ApiTags("Item Public Getters")
 @Controller("item")
@@ -28,12 +29,12 @@ export class ItemController {
     type: ResponseAllItemsDto,
     description: "Returns items with stock quantity higher than 0 ",
   })
-  @Get("stock/:page/:size")
-  async getAllItemsStock(@Param() params: any) {
+  @Get("stock")
+  async getAllItemsStock(@Query() query: QueryPagination) {
     const items = await this.itemService.getAllItems(
       true,
-      Number(params.page),
-      Number(params.size)
+      query.page,
+      query.take
     );
     return this.utilityService.paginateResponse(
       items.items,
@@ -46,12 +47,12 @@ export class ItemController {
     type: ResponseAllItemsDto,
     description: "Returns all items ",
   })
-  @Get("all/:page/:size")
-  async getAllItems(@Param() params: any) {
+  @Get("all")
+  async getAllItems(@Query() query: QueryPagination) {
     const items = await this.itemService.getAllItems(
       false,
-      Number(params.page),
-      Number(params.size)
+      query.page,
+      query.take
     );
     return this.utilityService.paginateResponse(
       items.items,
