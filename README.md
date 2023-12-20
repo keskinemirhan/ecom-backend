@@ -8,6 +8,7 @@ log : token service login and register integration
 
 - [x] Change Email Verification System With Registration
 - [x] JWT Refresh Token Implementation
+- [x] Change File Structure ==
 - [ ] Implement Update Account Email
 - [ ] Account Login Attempt Limit
 - [ ] Order Controller

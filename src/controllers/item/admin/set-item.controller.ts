@@ -20,7 +20,7 @@ import { ResponseAddItemDto } from "./dto/response-add-item.dto";
 import { ResponseUpdateItemDto } from "./dto/response-update-item.dto";
 import { ResponseRemoveItemDto } from "./dto/response-remove-item.dto";
 
-@ApiTags("Admin Item Setters")
+@ApiTags("Admin Item ")
 @UseGuards(AdminAuthGuard)
 @Controller("setitem")
 export class SetItemController {
