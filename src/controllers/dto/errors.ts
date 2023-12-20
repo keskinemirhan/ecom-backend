@@ -16,7 +16,7 @@ export const ErrorCodeDescriptions: {
   ALREADY_VERIFIED: "Account already verified",
   VERIFICATION_QUOTA_EXCEEDED:
     "Verification quota exceeded please try again later",
-  INVALID_TOKEN: "Token is not valid",
+  INVALID_TOKEN: "Token is not valid or wrong type of token is given",
   INVALID_CREDENTIALS: "Credentials are invalid",
   LOGIN_REQUIRED: "Have to log in to use this endpoint ",
   USER_NOT_FOUND: "User does not exists",

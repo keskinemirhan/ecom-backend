@@ -28,6 +28,18 @@ export class AccountService {
   }
 
   /**
+   * Query one user
+   * @param options query options
+   * @returns user
+   * @throws {"USER_NOT_FOUND"}
+   */
+  async getUser(options: FindOneOptions<User>) {
+    const user = await this.userRepo.findOne(options);
+    if (!user) throw new ServiceException("USER_NOT_FOUND");
+    return user;
+  }
+
+  /**
    * Get User entity by email address of user
    * @param email - email address of user
    * @returns - Promise of User entity

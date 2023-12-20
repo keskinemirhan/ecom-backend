@@ -24,6 +24,7 @@ import { OrderService } from "./services/order.service";
 import { AddressService } from "./services/address.service";
 import { ScheduleModule } from "@nestjs/schedule";
 import { TaskService } from "./services/task.service";
+import { TokenService } from "./services/token.service";
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { TaskService } from "./services/task.service";
     OrderService,
     AddressService,
     TaskService,
+    TokenService,
   ],
   exports: [
     RegistrationService,
@@ -71,6 +73,7 @@ import { TaskService } from "./services/task.service";
     PaymentService,
     OrderService,
     AddressService,
+    TokenService,
   ],
 })
 export class BusinessModule {}

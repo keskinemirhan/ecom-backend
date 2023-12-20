@@ -14,6 +14,7 @@ import { SetCategoryController } from "./controllers/admin/set-category/set-cate
 import { FileControler } from "./controllers/admin/file/file.controller";
 import { AddressController } from "./controllers/user/address/address.controller";
 import { PaymentController } from "./controllers/user/payment/payment.controller";
+import { RefreshController } from "./controllers/public/refresh/refresh.controller";
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { PaymentController } from "./controllers/user/payment/payment.controller
     FileControler,
     AddressController,
     PaymentController,
+    RefreshController,
   ],
   providers: [],
 })

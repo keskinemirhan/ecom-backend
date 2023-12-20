@@ -1,24 +1,20 @@
 import {
-  BadRequestException,
   CanActivate,
   ExecutionContext,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { InjectRepository } from "@nestjs/typeorm";
 import { Request } from "express";
 import { customError } from "src/controllers/dto/errors";
-import { Repository } from "typeorm";
-import { User } from "../entities/user.entity";
 import { AccountService } from "../services/account.service";
+import { TokenService } from "../services/token.service";
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {
   constructor(
-    private jwtService: JwtService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private tokenService: TokenService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,9 +24,7 @@ export class AdminAuthGuard implements CanActivate {
       throw new UnauthorizedException(customError("LOGIN_REQUIRED"));
     }
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env["JWT_SECRET"] || "secret",
-      });
+      const payload = await this.tokenService.verifyAccessToken(token);
       const user = await this.accountService.getUserByEmail(payload.email);
 
       if (!user.isAdmin) throw new NotFoundException();

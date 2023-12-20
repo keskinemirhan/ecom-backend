@@ -9,21 +9,20 @@ import { RegistrationService } from "src/business/services/registration.service"
 import { RequestRegisterDto } from "./dto/request-register.dto";
 import { UtilityService } from "src/business/services/utility.service";
 import { ResponseRegisterDto } from "./dto/response-register.dto";
-import { JwtService } from "@nestjs/jwt";
 import { RequestVerifyEmailDto } from "./dto/request-verify-email.dto";
 import { ResponseVerifyEmailDto } from "./dto/response-verify-email.dto";
 import { RequestEmailVerificationDto } from "./dto/request-email-verification.dto";
 import { ResponseEmailVerficationDto } from "./dto/response-email-verificaiton.dto";
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { ResponseErrorDto } from "src/controllers/dto/response-error.dto";
 import { customError, errorApiInfo } from "src/controllers/dto/errors";
+import { TokenService } from "src/business/services/token.service";
 @ApiTags("Register")
 @Controller("register")
 export class RegisterController {
   constructor(
     private registrationService: RegistrationService,
     private utilityService: UtilityService,
-    private jwtService: JwtService
+    private tokenService: TokenService
   ) {}
 
   @ApiOkResponse({
@@ -49,9 +48,8 @@ export class RegisterController {
     const payload = {
       sub: registerResult.id,
       email: registerResult.email,
-      name: registerResult.name,
     };
-    const access_token = await this.jwtService.signAsync(payload);
+    const access_token = await this.tokenService.createAccessToken(payload);
     return {
       email,
       access_token,
@@ -76,12 +74,10 @@ export class RegisterController {
   ): Promise<ResponseVerifyEmailDto> {
     const { code, access_token } = requestVerifyEmail;
 
-    const payload = await this.jwtService.verifyAsync(access_token, {
-      secret: process.env["JWT_SECRET"] || "secret",
-    });
+    const payload = await this.tokenService.verifyAccessToken(access_token);
     const verificationResult =
       await this.registrationService.verifyEmailVerification(
-        payload["email"],
+        payload.email,
         code
       );
     return {
@@ -108,9 +104,7 @@ export class RegisterController {
     const { access_token } = requestEmailVerification;
     let payload;
     try {
-      payload = await this.jwtService.verifyAsync(access_token, {
-        secret: process.env["JWT_SECRET"] || "secret",
-      });
+      payload = await this.tokenService.verifyAccessToken(access_token);
     } catch {
       throw new BadRequestException(customError("INVALID_TOKEN"));
     }

@@ -27,7 +27,8 @@ export class ItemController {
 
   @ApiOkResponse({
     type: ResponseAllItemsDto,
-    description: "Returns items with stock quantity higher than 0 ",
+    description:
+      "Returns items with stock quantity higher than 0 Query parameters ",
   })
   @Get("stock")
   async getAllItemsStock(@Query() query: QueryPagination) {

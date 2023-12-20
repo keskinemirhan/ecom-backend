@@ -17,6 +17,7 @@ export const SERVICE_ERRORS = [
   "NO_VERIFICATION_IN_PROCESS",
   "ALREADY_FAILED_VERIFICATION",
   "VERIFICATION_TIMEOUT",
+  "INVALID_TOKEN",
 ] as const;
 export type ServiceError = (typeof SERVICE_ERRORS)[number];
 

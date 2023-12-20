@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Post } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { RequestLoginDto } from "./dto/request-login.dto";
 import { LoginService } from "src/business/services/login.service";
-import { customError, errorApiInfo } from "src/controllers/dto/errors";
+import { errorApiInfo } from "src/controllers/dto/errors";
 import { ResponseLoginDto } from "./dto/response-login.dto";
 import { AccountService } from "src/business/services/account.service";
 import { ResponseLogadminDto } from "./dto/response-logadmin.dto";
@@ -33,7 +33,7 @@ export class LoginController {
     const verified = user.verified;
 
     return {
-      access_token: result,
+      ...result,
       verified,
     };
   }
@@ -52,8 +52,6 @@ export class LoginController {
     const password = requestLogin.password;
     const result = await this.loginService.login(email, password, true);
 
-    return {
-      access_token: result,
-    };
+    return result;
   }
 }

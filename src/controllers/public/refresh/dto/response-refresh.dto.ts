@@ -1,13 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class ResponseLogadminDto {
+export class ResponseRefresh {
   @ApiProperty({
-    description: "Access token of admin",
+    description: "Token to access resources",
   })
   access_token: string;
 
   @ApiProperty({
-    description: "Refresh token",
+    description: "Token to acquire access token",
   })
   refresh_token: string;
 }

@@ -2,18 +2,18 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
 import { Repository } from "typeorm";
-import { JwtService } from "@nestjs/jwt";
 import { UtilityService } from "./utility.service";
 import { ConfigService } from "@nestjs/config";
 import { ServiceException } from "../exceptions/service.exception";
+import { TokenService } from "./token.service";
 
 @Injectable()
 export class LoginService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
-    private jwtService: JwtService,
     private utilityService: UtilityService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private tokenService: TokenService
   ) {
     // Default admin register
     const adminEmail = this.configService.get<string>(
@@ -51,18 +51,16 @@ export class LoginService {
 
   /**
    * Returns Jwt of logged in user if credentials match
-   * if user does not exists returns -1
-   * if password wrong returns 1
    * @param email - email of user
    * @param password - password of user
    * @throws {"INVALID_CREDENTIALS"}
-   * @returns access token
+   * @returns refresh and access token
    */
   async login(
     email: string,
     password: string,
     admin: boolean = false
-  ): Promise<string> {
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userRepo.findOne({
       where: {
         email,
@@ -82,11 +80,13 @@ export class LoginService {
     const payload = {
       sub: user.id,
       email: user.email,
-      name: user.name,
     };
 
-    const access_token = await this.jwtService.signAsync(payload);
-
-    return access_token;
+    const access_token = await this.tokenService.createAccessToken(payload);
+    const refresh_token = await this.tokenService.createRefreshToken(payload);
+    return {
+      access_token,
+      refresh_token,
+    };
   }
 }

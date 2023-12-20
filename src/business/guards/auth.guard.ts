@@ -4,16 +4,16 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { customError } from "src/controllers/dto/errors";
 import { AccountService } from "../services/account.service";
 import { User } from "../entities/user.entity";
+import { TokenService } from "../services/token.service";
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private jwtService: JwtService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private tokenService: TokenService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -23,10 +23,8 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException(customError("LOGIN_REQUIRED"));
     }
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env["JWT_SECRET"] || "secret",
-      });
-      const user = await this.accountService.getUserById(payload["sub"]);
+      const payload = await this.tokenService.verifyAccessToken(token);
+      const user = await this.accountService.getUserById(payload.sub);
       request["user"] = user;
     } catch {
       throw new UnauthorizedException(customError("INVALID_TOKEN"));

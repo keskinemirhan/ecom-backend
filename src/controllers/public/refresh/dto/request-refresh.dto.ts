@@ -1,13 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsJWT } from "class-validator";
 
-export class ResponseLogadminDto {
-  @ApiProperty({
-    description: "Access token of admin",
-  })
-  access_token: string;
-
+export class RequestRefresh {
   @ApiProperty({
     description: "Refresh token",
   })
+  @IsJWT()
   refresh_token: string;
 }

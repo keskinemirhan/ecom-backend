@@ -7,6 +7,11 @@ export class ResponseLoginDto {
   access_token: string;
 
   @ApiProperty({
+    description: "Token Refresh token",
+  })
+  refresh_token: string;
+
+  @ApiProperty({
     description: "Indicates whether the account is verified or not",
   })
   verified: boolean;
