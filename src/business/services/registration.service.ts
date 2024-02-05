@@ -118,7 +118,7 @@ export class RegistrationService {
       to: emailAddr,
       from: `"${fromName}" ${fromEmail}`,
       subject: "E-Posta Doğrulaması",
-      html: this.emailVTemplate({ name: name, code: code }),
+      html: this.emailVTemplate({ name: name, code: code, appName: process.env.APP_NAME }),
     });
   }
 
