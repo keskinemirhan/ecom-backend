@@ -1,19 +1,20 @@
-# The Door Park Backend
+# E-Commerce Backend
 
-Backend of The Door Park
+
+
 
 # TODO Tasks
 
 log : token service login and register integration
 
-- [x] Change Email Verification System With Registration
+- [x] Change Email Verification System and Registration
 - [x] JWT Refresh Token Implementation
-- [x] Change File Structure ==
-- [ ] Implement Update Account Email
+- [x] Change Folder Structure
+- [ ] Update Account Email ==
 - [ ] Account Login Attempt Limit
 - [ ] Order Controller
 - [ ] Websockets For Order Update
-- [ ] Payment Normalization
-- [ ] Test New Exception Handling (Test Entire Endpoints)
+- [ ] Payment Tests
+- [ ] Test Exception Handling (Test All Endpoints)
 - [ ] Revise Controllers
 - [ ] Security
