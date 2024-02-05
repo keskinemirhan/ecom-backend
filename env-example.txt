@@ -3,7 +3,7 @@ ADMIN_SURNAME=Admin
 ADMIN_EMAIL=mail@mail.com
 ADMIN_PASSWORD=password
 
-GC_PROJECT_ID=door-store-backend
+GC_PROJECT_ID=project-id
 GC_KEY_NAME=cloud-key.json
 GC_BUCKET_NAME=bucket-name
 
